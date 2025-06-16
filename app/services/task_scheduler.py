@@ -15,9 +15,9 @@ from sqlalchemy import select, insert, update
 from croniter import croniter
 
 from ..core import (
-    get_database_manager,
+    get_database,
     get_logger,
-    TaskSchedulerException
+    TaskException
 )
 from ..models import (
     TaskLog,
@@ -98,7 +98,7 @@ class TaskScheduler:
     
     def __init__(self, max_concurrent_tasks: int = 10):
         self.max_concurrent_tasks = max_concurrent_tasks
-        self.db_manager = get_database_manager()
+        self.db_manager = get_database()
         
         # 任务存储
         self._tasks: Dict[str, Task] = {}
@@ -273,7 +273,7 @@ class TaskScheduler:
         try:
             croniter(cron_expression)
         except Exception as e:
-            raise TaskSchedulerException(
+            raise TaskException(
                 f"无效的Cron表达式: {cron_expression}, 错误: {e}",
                 task_id="",
                 error_code=3001

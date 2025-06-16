@@ -14,7 +14,7 @@ from sqlalchemy.dialects.mysql import insert as mysql_insert
 from pydantic import ValidationError
 
 from ..core import (
-    get_database_manager,
+    get_database,
     get_logger,
     DataValidationException,
     DatabaseException
@@ -39,7 +39,7 @@ class DataProcessor:
     """
     
     def __init__(self):
-        self.db_manager = get_database_manager()
+        self.db_manager = get_database()
         self.validator = DataValidator()
         self._batch_size = 1000
     

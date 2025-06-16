@@ -66,6 +66,16 @@ class RateLimiter:
         while not await self.acquire():
             await asyncio.sleep(0.1)
 
+    def __eq__(self, other: "RateLimiter") -> bool:
+        """比较速率限制器是否相等
+        
+        Args:
+            other: 另一个速率限制器
+        
+        Returns:
+            bool: 是否相等
+        """
+        return self.rate == other.rate and self.per == other.per
 
 class HTTPClient:
     """HTTP客户端

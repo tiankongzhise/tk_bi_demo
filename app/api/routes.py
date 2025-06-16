@@ -13,7 +13,7 @@ from aiohttp_cors import setup as cors_setup, ResourceOptions
 from ..core import (
     get_logger,
     get_config,
-    get_database_manager,
+    get_database,
     DatabaseException,
     PlatformAPIException,
     ValidationException
@@ -235,7 +235,7 @@ async def health_check(request: Request) -> Response:
         Response: 健康检查结果
     """
     try:
-        db_manager = get_database_manager()
+        db_manager = get_database()
         
         # 检查数据库连接
         db_healthy = await db_manager.health_check()

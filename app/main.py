@@ -15,7 +15,7 @@ from .core import (
     init_logging,
     get_logger,
     init_database,
-    get_database_manager,
+    get_database,
     close_database
 )
 from .services import (
@@ -86,7 +86,7 @@ class ApplicationManager:
         await create_all_tables()
         
         # 测试数据库连接
-        db_manager = get_database_manager()
+        db_manager = get_database()
         if await db_manager.health_check():
             self.logger.info("数据库连接正常")
         else:

@@ -3,7 +3,7 @@
 定义用于数据验证、序列化和API交换的Pydantic模型。
 """
 
-from pydantic import BaseModel, Field, validator, root_validator
+from pydantic import BaseModel, Field, validator, model_validator
 from datetime import date, datetime
 from typing import Optional, Dict, Any, List, Union
 from decimal import Decimal
@@ -80,7 +80,8 @@ class AdMetrics(BaseSchema):
             return round(float(v), 2)
         return v
     
-    @root_validator
+    @model_validator(mode='before')
+    @classmethod
     def calculate_metrics(cls, values):
         """计算派生指标"""
         impressions = values.get("impressions", 0)
@@ -188,7 +189,8 @@ class TaskResult(BaseSchema):
     config: Optional[TaskConfig] = Field(None, description="任务配置")
     metrics: Optional[Dict[str, Any]] = Field(None, description="任务指标")
     
-    @root_validator
+    @model_validator(mode='before')
+    @classmethod
     def calculate_duration(cls, values):
         """计算执行时长"""
         start_time = values.get("start_time")
@@ -280,7 +282,8 @@ class DataQualityReport(BaseSchema):
     # 建议
     recommendations: Optional[List[str]] = Field(None, description="改进建议")
     
-    @root_validator
+    @model_validator(mode='before')
+    @classmethod
     def validate_record_counts(cls, values):
         """验证记录数统计"""
         total = values.get("total_records", 0)

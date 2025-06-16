@@ -3,7 +3,8 @@
 提供统一的配置管理功能，支持环境变量和配置文件。
 """
 
-from pydantic import BaseSettings, Field
+from pydantic import Field
+from pydantic_settings import BaseSettings
 from typing import Dict, Any, Optional
 from pathlib import Path
 import os
@@ -77,9 +78,9 @@ class MonitorConfig(BaseSettings):
 
 class AppConfig(BaseSettings):
     """应用主配置"""
-    debug: bool = Field(default=False, description="调试模式")
-    log_level: str = Field(default="INFO", description="日志级别")
-    env: str = Field(default="development", description="运行环境")
+    app_debug: bool = Field(default=False, description="调试模式")
+    app_log_level: str = Field(default="INFO", description="日志级别")
+    app_env: str = Field(default="development", description="运行环境")
     
     # 子配置
     database: DatabaseConfig = Field(default_factory=DatabaseConfig)
@@ -123,12 +124,12 @@ class AppConfig(BaseSettings):
     @property
     def is_production(self) -> bool:
         """是否为生产环境"""
-        return self.env.lower() == "production"
+        return self.app_env.lower() == "production"
     
     @property
     def is_development(self) -> bool:
         """是否为开发环境"""
-        return self.env.lower() == "development"
+        return self.app_env.lower() == "development"
 
 
 # 全局配置实例
