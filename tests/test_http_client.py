@@ -58,6 +58,52 @@ class TestHttpClient(unittest.TestCase):
         asyncio.run(client.start()) 
         self.assertIsNotNone(client.session)
 
+    def test_http_manager_get(self):
+        manager = get_http_manager()
+        config = HTTPConfig()
+        rate_limiter = 10
+        client = manager.create_client('test_client',config,rate_limiter)
+        asyncio.run(client.start()) 
+        get_client = manager.get_client('test_client')
+        self.assertIsInstance(get_client,HTTPClient)
+        self.assertEqual(get_client,client)
+    
+    def test_http_manager_close(self):
+        t_loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(t_loop)
+        manager = get_http_manager()
+        config = HTTPConfig()
+        rate_limiter = 10
+        client = manager.create_client('test_client',config,rate_limiter)
+        t_loop.run_until_complete(client.start()) 
+        get_client = manager.get_client('test_client')
+        self.assertIsInstance(get_client,HTTPClient)
+        self.assertEqual(get_client,client)
+        t_loop.run_until_complete(manager.close_all())
+        self.assertEqual(manager._clients,{})
+    
+    def test_http_client_get(self):
+        t_loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(t_loop)
+        async def _test():
+            manager = get_http_manager()
+            config = HTTPConfig()
+            rate_limiter = 10
+            client = manager.create_client('test_client',config,rate_limiter)
+            await client.start()
+            rsp = await client.get('https://www.baidu.com')
+            print(f'------rsp:{rsp}----------')
+            return rsp
+        result = t_loop.run_until_complete(_test())
+        self.assertIsInstance(result,dict)
+        t_loop.close()
+        
+
+        
+        
+    
+
+        
 
 
 
