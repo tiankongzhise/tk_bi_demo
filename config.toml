@@ -1,0 +1,75 @@
+# 应用配置文件
+# 此文件包含非机密的配置信息，机密信息请在.env文件中配置
+
+[app]
+debug = false
+log_level = "INFO"
+env = "development"
+
+[database]
+host = "test"
+port = 3306
+database = "test_db"
+pool_size = 100
+max_overflow = 10
+pool_timeout = 30
+
+[http]
+timeout = 30
+max_connections = 100
+retry_times = 3
+retry_delay = 1.0
+
+[redis]
+host = "localhost"
+port = 6379
+db = 0
+
+[log]
+level = "INFO"
+format = "json"
+file_path = "./logs/app.log"
+max_size = "100MB"
+backup_count = 7
+
+[monitor]
+enable = true
+interval = 60
+alert_threshold = 90
+
+# 广告平台配置（非机密部分）
+[platforms.baidu]
+name = "baidu"
+base_url = "https://api.baidu.com"
+rate_limit = 100
+timeout = 30
+
+[platforms.sogou]
+name = "sogou"
+base_url = "https://api.sogou.com"
+rate_limit = 100
+timeout = 30
+
+[platforms.qihoo360]
+name = "qihoo360"
+base_url = "https://api.360.cn"
+rate_limit = 100
+timeout = 30
+
+[platforms.shenma]
+name = "shenma"
+base_url = "https://api.sm.cn"
+rate_limit = 100
+timeout = 30
+
+[platforms.bytedance]
+name = "bytedance"
+base_url = "https://api.oceanengine.com"
+rate_limit = 100
+timeout = 30
+
+[platforms.tencent]
+name = "tencent"
+base_url = "https://api.e.qq.com"
+rate_limit = 100
+timeout = 30

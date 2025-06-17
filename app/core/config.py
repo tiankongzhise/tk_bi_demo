@@ -8,6 +8,7 @@ from pydantic_settings import BaseSettings
 from typing import Dict, Any, Optional
 from pathlib import Path
 import os
+import toml
 
 
 class DatabaseConfig(BaseSettings):
@@ -20,6 +21,31 @@ class DatabaseConfig(BaseSettings):
     pool_size: int = Field(default=20, description="连接池大小")
     max_overflow: int = Field(default=10, description="连接池最大溢出")
     pool_timeout: int = Field(default=30, description="连接池超时时间")
+    
+    class Config:
+        env_prefix = "DATABASE__"
+        env_file = ".env"
+        case_sensitive = False
+        extra = "allow"
+    
+    def __init__(self, **kwargs):
+        # 加载TOML配置
+        toml_config = self._load_toml_config()
+        if toml_config and "database" in toml_config:
+            for key, value in toml_config["database"].items():
+                if key not in kwargs:
+                    kwargs[key] = value
+        super().__init__(**kwargs)
+    
+    def _load_toml_config(self) -> Dict[str, Any]:
+        """加载TOML配置文件"""
+        config_file = Path("config.toml")
+        if config_file.exists():
+            try:
+                return toml.load(config_file)
+            except Exception as e:
+                print(f"警告: 加载TOML配置文件失败: {e}")
+        return {}
     
     @property
     def url(self) -> str:
@@ -34,6 +60,31 @@ class HTTPConfig(BaseSettings):
     retry_times: int = Field(default=3, description="重试次数")
     retry_delay: float = Field(default=1.0, description="重试延迟")
     
+    class Config:
+        env_prefix = "HTTP__"
+        env_file = ".env"
+        case_sensitive = False
+        extra = "allow"
+    
+    def __init__(self, **kwargs):
+        # 加载TOML配置
+        toml_config = self._load_toml_config()
+        if toml_config and "http" in toml_config:
+            for key, value in toml_config["http"].items():
+                if key not in kwargs:
+                    kwargs[key] = value
+        super().__init__(**kwargs)
+    
+    def _load_toml_config(self) -> Dict[str, Any]:
+        """加载TOML配置文件"""
+        config_file = Path("config.toml")
+        if config_file.exists():
+            try:
+                return toml.load(config_file)
+            except Exception as e:
+                print(f"警告: 加载TOML配置文件失败: {e}")
+        return {}
+    
 
 class RedisConfig(BaseSettings):
     """Redis配置"""
@@ -41,6 +92,31 @@ class RedisConfig(BaseSettings):
     port: int = Field(default=6379, description="Redis端口")
     password: Optional[str] = Field(default=None, description="Redis密码")
     db: int = Field(default=0, description="Redis数据库")
+    
+    class Config:
+        env_prefix = "REDIS__"
+        env_file = ".env"
+        case_sensitive = False
+        extra = "allow"
+    
+    def __init__(self, **kwargs):
+        # 加载TOML配置
+        toml_config = self._load_toml_config()
+        if toml_config and "redis" in toml_config:
+            for key, value in toml_config["redis"].items():
+                if key not in kwargs:
+                    kwargs[key] = value
+        super().__init__(**kwargs)
+    
+    def _load_toml_config(self) -> Dict[str, Any]:
+        """加载TOML配置文件"""
+        config_file = Path("config.toml")
+        if config_file.exists():
+            try:
+                return toml.load(config_file)
+            except Exception as e:
+                print(f"警告: 加载TOML配置文件失败: {e}")
+        return {}
     
     @property
     def url(self) -> str:
@@ -53,11 +129,35 @@ class RedisConfig(BaseSettings):
 class PlatformConfig(BaseSettings):
     """广告平台配置"""
     name: str = Field(..., description="平台名称")
-    api_key: str = Field(..., description="API密钥")
-    secret_key: str = Field(..., description="密钥")
+    api_key: Optional[str] = Field(default=None, description="API密钥")
+    secret_key: Optional[str] = Field(default=None, description="密钥")
     base_url: str = Field(..., description="API基础URL")
     rate_limit: int = Field(default=100, description="速率限制(每分钟)")
     timeout: int = Field(default=30, description="请求超时时间")
+    
+    class Config:
+        env_file = ".env"
+        case_sensitive = False
+        extra = "allow"
+    
+    def __init__(self, platform_name: str = None, **kwargs):
+        # 加载TOML配置
+        toml_config = self._load_toml_config()
+        if toml_config and "platforms" in toml_config and platform_name and platform_name in toml_config["platforms"]:
+            for key, value in toml_config["platforms"][platform_name].items():
+                if key not in kwargs:
+                    kwargs[key] = value
+        super().__init__(**kwargs)
+    
+    def _load_toml_config(self) -> Dict[str, Any]:
+        """加载TOML配置文件"""
+        config_file = Path("config.toml")
+        if config_file.exists():
+            try:
+                return toml.load(config_file)
+            except Exception as e:
+                print(f"警告: 加载TOML配置文件失败: {e}")
+        return {}
     
 
 class LogConfig(BaseSettings):
@@ -68,12 +168,62 @@ class LogConfig(BaseSettings):
     max_size: str = Field(default="100MB", description="日志文件最大大小")
     backup_count: int = Field(default=7, description="日志文件备份数量")
     
+    class Config:
+        env_prefix = "LOG__"
+        env_file = ".env"
+        case_sensitive = False
+        extra = "allow"
+    
+    def __init__(self, **kwargs):
+        # 加载TOML配置
+        toml_config = self._load_toml_config()
+        if toml_config and "log" in toml_config:
+            for key, value in toml_config["log"].items():
+                if key not in kwargs:
+                    kwargs[key] = value
+        super().__init__(**kwargs)
+    
+    def _load_toml_config(self) -> Dict[str, Any]:
+        """加载TOML配置文件"""
+        config_file = Path("config.toml")
+        if config_file.exists():
+            try:
+                return toml.load(config_file)
+            except Exception as e:
+                print(f"警告: 加载TOML配置文件失败: {e}")
+        return {}
+    
 
 class MonitorConfig(BaseSettings):
     """监控配置"""
     enable: bool = Field(default=True, description="是否启用监控")
     interval: int = Field(default=60, description="监控间隔(秒)")
     alert_threshold: int = Field(default=90, description="告警阈值")
+    
+    class Config:
+        env_prefix = "MONITOR__"
+        env_file = ".env"
+        case_sensitive = False
+        extra = "allow"
+    
+    def __init__(self, **kwargs):
+        # 加载TOML配置
+        toml_config = self._load_toml_config()
+        if toml_config and "monitor" in toml_config:
+            for key, value in toml_config["monitor"].items():
+                if key not in kwargs:
+                    kwargs[key] = value
+        super().__init__(**kwargs)
+    
+    def _load_toml_config(self) -> Dict[str, Any]:
+        """加载TOML配置文件"""
+        config_file = Path("config.toml")
+        if config_file.exists():
+            try:
+                return toml.load(config_file)
+            except Exception as e:
+                print(f"警告: 加载TOML配置文件失败: {e}")
+        return {}
     
 
 class AppConfig(BaseSettings):
@@ -96,28 +246,76 @@ class AppConfig(BaseSettings):
         env_file = ".env"
         env_nested_delimiter = "__"
         case_sensitive = False
+        extra = "allow"
         
     def __init__(self, **kwargs):
+        # 首先加载TOML配置
+        toml_config = self._load_toml_config()
+        
+        # 合并TOML配置到kwargs
+        if toml_config:
+            kwargs = self._merge_configs(toml_config, kwargs)
         super().__init__(**kwargs)
         self._load_platform_configs()
     
+    def _load_toml_config(self) -> Dict[str, Any]:
+        """加载TOML配置文件"""
+        config_file = Path("config.toml")
+        if config_file.exists():
+            try:
+                return toml.load(config_file)
+            except Exception as e:
+                print(f"警告: 加载TOML配置文件失败: {e}")
+        return {}
+    
+    def _merge_configs(self, toml_config: Dict[str, Any], env_config: Dict[str, Any]) -> Dict[str, Any]:
+        """合并TOML配置和环境变量配置"""
+        merged = env_config.copy()
+        
+        # 合并应用配置
+        if "app" in toml_config:
+            app_config = toml_config["app"]
+            merged.update({
+                "app_debug": app_config.get("debug", merged.get("app_debug")),
+                "app_log_level": app_config.get("log_level", merged.get("app_log_level")),
+                "app_env": app_config.get("env", merged.get("app_env"))
+            })
+        
+        # 合并子配置
+        for section in ["database", "http", "redis", "log", "monitor"]:
+            if section in toml_config:
+                section_config = toml_config[section]
+                # 将TOML配置转换为环境变量格式
+                for key, value in section_config.items():
+                    env_key = f"{section}__{key}"
+                    if env_key not in merged:
+                        merged[env_key] = value
+        
+        return merged
+    
     def _load_platform_configs(self):
         """加载平台配置"""
+        # 首先从TOML文件加载平台配置
+        toml_config = self._load_toml_config()
         platform_names = ["baidu", "sogou", "qihoo360", "shenma", "bytedance", "tencent"]
         
         for platform_name in platform_names:
-            # 从环境变量加载平台配置
-            platform_env_prefix = f"PLATFORMS__{platform_name.upper()}__"
             platform_config = {}
             
+            # 从TOML配置加载非机密信息
+            if "platforms" in toml_config and platform_name in toml_config["platforms"]:
+                platform_config.update(toml_config["platforms"][platform_name])
+            
+            # 从环境变量加载机密信息
+            platform_env_prefix = f"PLATFORMS__{platform_name.upper()}__"
             for key, value in os.environ.items():
                 if key.startswith(platform_env_prefix):
                     config_key = key[len(platform_env_prefix):].lower()
                     platform_config[config_key] = value
             
-            if platform_config:
+            if platform_config and "name" in platform_config:
                 try:
-                    self.platforms[platform_name] = PlatformConfig(**platform_config)
+                    self.platforms[platform_name] = PlatformConfig(platform_name=platform_name, **platform_config)
                 except Exception as e:
                     print(f"警告: 加载{platform_name}平台配置失败: {e}")
     

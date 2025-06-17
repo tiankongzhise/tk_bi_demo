@@ -97,7 +97,22 @@ class TestHttpClient(unittest.TestCase):
         result = t_loop.run_until_complete(_test())
         self.assertIsInstance(result,dict)
         t_loop.close()
-        
+    
+    def test_http_client_post(self):
+        t_loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(t_loop)
+        async def _test():
+            manager = get_http_manager()
+            config = HTTPConfig()
+            rate_limiter = 10
+            client = manager.create_client('test_client',config,rate_limiter)
+            await client.start()
+            rsp = await client.post('https://www.baidu.com/s',json_data={'wd':'python'})
+            print(f'------rsp:{rsp}----------')
+            return rsp
+        result = t_loop.run_until_complete(_test())
+        self.assertIsInstance(result,dict)
+        t_loop.close()
 
         
         
