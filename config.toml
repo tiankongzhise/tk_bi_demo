@@ -1,0 +1,10 @@
+[log]
+path = '/www/wwwlogs/python/api2_hnzzzsw/gunicorn_error.log'
+level = 'debug'
+format = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+
+
+
+[retry]
+max_retry = 3
+retry_delay = 1
