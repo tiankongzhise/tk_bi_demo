@@ -1,15 +1,16 @@
 from abc import ABC, abstractmethod
+from typing import Type,TypeVar
 from ..models import AdsQueryParams,BdAdsQueryParams
+from ..core.update_ads_data.baidu import BaiduOauthCore
 
 
-
-
+T = TypeVar('T',bound=AdsQueryParams)
 
 
 
 class UpdateAdsDataFactory(ABC):
     @abstractmethod
-    def __init__(self,channel:str,ads_query_params:AdsQueryParams):
+    def __init__(self,channel:str,ads_query_params:Type[T]):
         self.channel = channel
         self.ads_query_params = ads_query_params
     @abstractmethod
@@ -38,10 +39,13 @@ class UpdateAdsDataFactory(ABC):
 
 
 class UpdateBdAdsData(UpdateAdsDataFactory):
-    def __init__(self,channel:str,ads_query_params:BdAdsQueryParams):
-        super().__init__(channel,ads_query_params)
+    def __init__(self,ads_query_params:BdAdsQueryParams):
+        super().__init__("baidu",ads_query_params)
     def oauth(self):
-        pass
+        oauth_service = BaiduOauthCore(controler_id=self.ads_query_params.controler_id,
+                                     controler_name=self.ads_query_params.controler_name)
+        oauth_info = oauth_service.oauth()
+        self.access_token = oauth_info.access_token
     def get_ads_report_data(self):
         pass
     def get_ads_account_structure(self):

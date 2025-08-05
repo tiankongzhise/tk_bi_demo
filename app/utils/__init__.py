@@ -1,5 +1,5 @@
 from .retry import retry,async_retry
-import exceptions
+from . import exceptions
 
 
 __all__ = [

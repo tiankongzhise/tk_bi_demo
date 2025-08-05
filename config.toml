@@ -1,5 +1,5 @@
-[log]
-path = '/www/wwwlogs/python/api2_hnzzzsw/gunicorn_error.log'
+[logger]
+path = '/www/wwwlogs/python/tk_bi_demo/gunicorn_error.log'
 level = 'debug'
 format = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 
@@ -8,3 +8,28 @@ format = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 [retry]
 max_retry = 3
 retry_delay = 1
+
+
+[db_config]
+# 数据库基本配置
+database = "test_db"  # 数据库名称
+driver = "pymysql"              # 数据库驱动 (pymysql, psycopg2, sqlite等)
+dialect = "mysql"               # 数据库方言 (mysql, postgresql, sqlite等)
+charset = "utf8mb4"             # 字符集
+collation = "utf8mb4_general_ci" # 排序规则
+
+
+# SQLAlchemy 引擎配置
+echo = false          # 是否打印SQL语句到控制台
+pool_size = 5         # 连接池大小
+max_overflow = 10     # 连接池最大溢出连接数
+pool_timeout = 30     # 获取连接的超时时间（秒）
+pool_recycle = 3600   # 连接回收时间（秒）
+pool_pre_ping = true  # 连接前是否ping测试连接有效性
+
+
+# 连接配置
+default_port = 3306        # 默认端口（当环境变量未设置时使用）
+connection_timeout = 30    # 连接超时时间
+read_timeout = 30          # 读取超时时间
+write_timeout = 30         # 写入超时时间

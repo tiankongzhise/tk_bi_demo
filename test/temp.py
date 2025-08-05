@@ -1,10 +1,10 @@
-
-class test_a(object):
-    def __init__(self,controler_name:str,controler_id:str|None = None,**kwargs):
-        self.controler_name = controler_name
-        self.controler_id = controler_id
-        self.kwargs = kwargs
-        print(f'controler_name:{controler_name},controler_id:{controler_id},kwargs:{kwargs}')
+from app.core.update_ads_data.baidu import BaiduOauthCore
 
 
-x = test_a('test_a')
+def test():
+    baidu_oauth_core = BaiduOauthCore('金蛛账户中心')
+    result = baidu_oauth_core.oauth()
+    print(result)
+    
+if __name__ == '__main__':
+    test()

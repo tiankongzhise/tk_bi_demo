@@ -1,7 +1,9 @@
-from .update_ads_data import AdsQueryParams,BdAdsQueryParams
+from .update_ads_data import AdsQueryParams,BdAdsQueryParams,BaiduAccessToken
 
 
 
 __all__ = [
-    "AdsQueryParams"
+    "AdsQueryParams",
+    "BdAdsQueryParams",
+    "BaiduAccessToken"
 ]

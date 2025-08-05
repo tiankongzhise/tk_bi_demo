@@ -19,17 +19,17 @@ def get_level_mapping():
 def set_logger():
     config = load_toml("config.toml")
     # Ensure the log directory exists
-    log_dir = os.path.dirname(config["log"]["path"])
+    log_dir = os.path.dirname(config["logger"]["path"])
     if not os.path.exists(log_dir):
         os.makedirs(log_dir)
     
     level_mapping = get_level_mapping()
     
     logging.basicConfig(
-        level=level_mapping[config["log"]["level"]],
-        format=config["log"]["format"],
+        level=level_mapping[config["logger"]["level"]],
+        format=config["logger"]["format"],
         handlers=[
-            logging.FileHandler(config["log"]["path"])
+            logging.FileHandler(config["logger"]["path"])
         ]
         )
 
