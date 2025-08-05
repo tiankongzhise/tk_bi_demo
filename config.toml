@@ -33,3 +33,7 @@ default_port = 3306        # 默认端口（当环境变量未设置时使用）
 connection_timeout = 30    # 连接超时时间
 read_timeout = 30          # 读取超时时间
 write_timeout = 30         # 写入超时时间
+
+[oauth]
+[oauth.baidu]
+refresh_token_time_delta = 2 # 刷新token时间间隔

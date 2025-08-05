@@ -33,13 +33,6 @@ def set_logger():
         ]
         )
 
-# def reload_logger_level(logger: logging.Logger):
-#     config = load_toml("config.toml")
-#     level_mapping = get_level_mapping()
-#     logger_level = level_mapping[config["log"]["level"]]
-#     for logger_name,logger in logger_center.items():
-#         logger.setLevel(logger_level)
-#         logger.warning(f"{logger_name} 日志级别已更改为: {logger_level}")
 
 def reload_logger_level(logger: logging.Logger):
     config = load_toml("config.toml")

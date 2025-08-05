@@ -1,4 +1,5 @@
-from app.core.update_ads_data.baidu import BaiduOauthCore
+from app.core import BaiduOauthCore
+
 
 
 def test():
