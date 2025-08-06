@@ -75,9 +75,13 @@ class ConfigManager:
         return self.get('oauth', {}).get('baidu', {})
     
     @property
-    def baidu_report_config(self) -> Dict[str, Any]:
-        """获取百度报告配置"""
-        return self.get('baidu_report_config', {})
+    def report_config(self,channel:str|None = None,report_name:str|None = None) -> Dict[str, Any]:
+        """获取报告配置"""
+        if channel is None:
+            return self.get('report_config', {})
+        if report_name is None:
+            return self.get(f'report_config.{channel}', {})
+        return self.report_config(channel,report_name)
     
     @property
     def baidu_account_structure_config(self) -> Dict[str, Any]:
@@ -93,7 +97,8 @@ class ConfigManager:
         Returns:
             处理后的报告配置
         """
-        config = self.get(f'baidu_report_config.{report_name}', {})
+        config = self.report_config('baidu',report_name)
+
         if not config:
             return {}
         
@@ -125,7 +130,7 @@ class ConfigManager:
 
 _global_config_manager = None
 
-def get_config_settings(config_manager:ConfigManager|None) -> ConfigManager:
+def get_config_settings(config_manager:ConfigManager|None =None) -> ConfigManager:
     """获取配置管理器实例"""
     global _global_config_manager
     

@@ -37,3 +37,19 @@ write_timeout = 30         # 写入超时时间
 [oauth]
 [oauth.baidu]
 refresh_token_time_delta = 2 # 刷新token时间间隔
+controler_name = '金蛛账户中心'
+
+[report_config]
+[report_config.baidu]
+user_name_list = ["金蛛-新账户5"]
+report_list = ["keyword_day"]
+[report_config.baidu.keyword_day]
+reportType = "2602783"
+timeUnit = "DAY"
+startDate = '2025-08-05'
+endDate = '2025-08-05'
+date_range = 'week'
+columns = []
+sorts = []
+filters = []
+needSum = false
