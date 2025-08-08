@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 from tk_base_utils import load_toml,get_target_file_path
 
 from .date_utils import DateRangeProcessor
-
+from ..logger import logger_wrapper
 
 class ConfigManager:
     """配置管理器"""
@@ -81,13 +81,14 @@ class ConfigManager:
             return self.get('report_config', {})
         if report_name is None:
             return self.get(f'report_config.{channel}', {})
-        return self.report_config(channel,report_name)
+        return self.get(f'report_config.{channel}.{report_name}',{})
     
     @property
     def baidu_account_structure_config(self) -> Dict[str, Any]:
         """获取百度账户结构配置"""
         return self.get('baidu_account_structure', {})
     
+    @logger_wrapper()
     def get_baidu_report_config(self, report_name: str) -> Dict[str, Any]:
         """获取百度报告配置
         
@@ -97,7 +98,8 @@ class ConfigManager:
         Returns:
             处理后的报告配置
         """
-        config = self.report_config('baidu',report_name)
+        config = self.get(f'report_config.baidu.{report_name}',{})
+
 
         if not config:
             return {}

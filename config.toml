@@ -3,6 +3,31 @@ path = '/www/wwwlogs/python/tk_bi_demo/gunicorn_error.log'
 level = 'debug'
 format = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 
+[logging]
+# 日志器名称
+name = "tk-bi-demo"
+
+# 日志级别 (DEBUG, INFO, WARNING, ERROR, CRITICAL)
+level = "DEBUG"
+
+# 日志格式
+format = "%(asctime)s - %(name)s - %(caller_filename)s - %(caller_lineno)s - %(levelname)s - %(message)s"
+
+# 日志文件路径
+file_path = "logs/app.log"
+
+# 日志文件最大字节数 (10MB)
+max_bytes = 10485760
+
+# 备份文件数量
+backup_count = 5
+
+# 日志轮转方式 (size 或 time)
+rotation_type = "size"
+
+# 日志轮转时间间隔 (当rotation_type为time时使用)
+# 可选值: S(秒), M(分), H(小时), D(天), midnight(午夜), W0-W6(周一到周日)
+rotation_interval = "midnight"
 
 
 [retry]

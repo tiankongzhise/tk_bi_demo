@@ -2,7 +2,7 @@ from doctest import REPORT_CDIFF
 import os
 from datetime import datetime,timedelta
 import httpx
-from ..logger import create_logger
+from ..logger import create_logger,logger_wrapper
 from ..config import get_config_settings
 from ..utils import retry
 
@@ -12,6 +12,10 @@ logger = create_logger(__name__)
 
 
 class FetchAdsDataBaiduCore:
+    """
+    百度广告数据获取核心类
+    """
+    @logger_wrapper()
     def __init__(self,access_token:str,user_name:str) -> None:
         self.config_settings = get_config_settings()
         self.http_headers = {
@@ -29,6 +33,7 @@ class FetchAdsDataBaiduCore:
             response = client.request(method,url,params=params,json=json,headers=self.http_headers)
             response.raise_for_status()
             return response.json()
+    @logger_wrapper()
     def create_report_task(self,report_name:str):
         url = 'https://api.baidu.com/json/sms/service/OpenApiReportService/createReportTask'
         report_params = self.config_settings.get_baidu_report_config(report_name)
