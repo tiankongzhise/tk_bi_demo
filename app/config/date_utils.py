@@ -36,10 +36,14 @@ class DateRangeProcessor:
             days_since_monday = today.weekday()
             start_date = today - timedelta(days=days_since_monday)
             end_date = today - timedelta(days=1)
+            if end_date < start_date:
+                end_date = start_date
         elif date_range == "month":
             # 本月1号到昨天
             start_date = today.replace(day=1)
             end_date = today - timedelta(days=1)
+            if end_date < start_date:
+                end_date = start_date
         elif date_range == "week_today":
             # 本周一到今天
             days_since_monday = today.weekday()

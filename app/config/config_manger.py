@@ -106,8 +106,13 @@ class ConfigManager:
         
         # 处理日期范围
         config = config.copy()
+
+
         if 'date_range' in config:
             start_date, end_date = self.date_processor.process_date_range(config['date_range'])
+
+
+
             config['startDate'] = start_date
             config['endDate'] = end_date
             # 删除date_range，避免传递给API
@@ -123,6 +128,11 @@ class ConfigManager:
                 config['endDate'] = end_date
         
         return config
+    
+    @property
+    def http_config(self) -> Dict[str, Any]:
+        """获取HTTP配置"""
+        return self.get('http_config', {})
     
     @property
     def config(self) -> Dict[str, Any]:

@@ -73,3 +73,33 @@ columns = []
 sorts = []
 filters = []
 needSum = false
+
+
+[http_config]
+# 超时配置
+timeout = 30.0  # 总超时时间（秒）
+connect_timeout = 10.0  # 连接超时时间（秒）
+read_timeout = 30.0  # 读取超时时间（秒）
+
+# 重试配置
+max_retries = 3  # 最大重试次数
+retry_delay = 1.0  # 重试基础延迟时间（秒）
+retry_backoff_factor = 2.0  # 重试退避因子
+
+# 日志配置
+log_level = "INFO"  # 日志级别
+log_requests = true  # 是否记录请求日志
+log_responses = true  # 是否记录响应日志
+log_file_path = "logs/app.log"  # 日志文件路径，如果设置则持久化到文件
+log_file_max_size = 10485760  # 日志文件最大大小（字节），默认10MB
+log_file_backup_count = 5  # 日志文件备份数量
+log_file_rotation_enabled = false  # 是否启用日志文件轮转，当日志文件被多个组件共享时建议设为False
+
+# 请求配置
+headers = {}
+user_agent= "HttpClient/0.1.0"
+
+# HTTP配置
+follow_redirects = true  # 是否跟随重定向
+verify_ssl = true  # 是否验证SSL证书
+
