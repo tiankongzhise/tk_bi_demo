@@ -9,5 +9,9 @@ def run():
     print(report_task)
 
 
+if __name__ == "__main__":
+    run()
+
+
 
 

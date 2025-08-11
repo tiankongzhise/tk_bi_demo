@@ -1,6 +1,7 @@
 from ..logger import create_logger,logger_wrapper
 from ..config import get_config_settings
 from .baidu_http_core import BaiduHttpClient
+from ..utils import accept_both_cases
 
 
 logger = create_logger(__name__)
@@ -39,7 +40,7 @@ class FetchAdsDataBaiduCore:
 
 
     def get_task_status(self,task_id:str|int):
-        response = self.http_client.get_report_task_status(task_id = task_id)
+        response = self.http_client.get_report_task_status(task_id)
         logger.info(f"{self.user_name}获取报告任务状态响应: {response}")
         return response
     def fetch_report_data(self):
