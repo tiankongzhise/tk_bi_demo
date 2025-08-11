@@ -75,5 +75,19 @@ class BaiduHttpClient(object):
             rsp = client.post(url,json=json_params)
         return rsp.json()
 
+    @accept_both_cases('task_id')
+    def get_report_task_status(self,
+                               task_id:str|int):
+        """获取异步任务状态"""
+        url = 'https://api.baidu.com/json/sms/service/OpenApiReportService/getTaskStatus'
+        json_params = {
+            "header":self._query_headers,
+            "body":{
+                "taskId":str(task_id),
+            }
+        }
+        with self.client as client:
+            rsp = client.post(url,json=json_params)
+        return rsp.json()
 
 
