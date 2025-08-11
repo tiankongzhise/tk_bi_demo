@@ -111,14 +111,28 @@ class BaiduHttpClient(object):
         # download_client = HttpClient(http_config)
         # with download_client as client:
         #     rsp = client.get(file_url)
-        #     content_text = rsp.text
+        # #     content_text = rsp.text
         with self.client as client:
-            rsp = client.get(file_url,headers=None)
+            rsp = client.get(file_url,default_headers=False)
+
             if rsp.raise_for_status():
                 return False
 
+            # 尝试不同编码解码响应内容
+            code_list = ['gb18030','utf-8','big5']
 
-            content_text = rsp.text
+            content_text = None
+            for code in code_list:
+                try:
+                    content_text = rsp.content.decode(code)
+                    break
+                except UnicodeDecodeError:
+                    continue
+            
+            if content_text is None:
+                raise HttpClientError(message='所有编码尝试失败')
+
+
 
 
         
