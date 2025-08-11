@@ -4,6 +4,8 @@ from .baidu_http_core import BaiduHttpClient
 from ..utils import accept_both_cases
 from tk_base_utils.tk_http.exceptions import TimeoutError,HttpClientError
 from pathlib import Path
+from typing import Generator
+
 import time
 logger = create_logger(__name__)
 
@@ -76,23 +78,39 @@ class FetchAdsDataBaiduCore:
         self.file_path = Path(self.temp_dir)/f"{self.user_name}_{self.report_name}_{task_id}.txt"
         self.file_path.parent.mkdir(parents=True,exist_ok=True)
         try:
-            report_data = self.http_client.download_file(file_url,table_header,data_start_row,self.file_path)
-            logger.info(f"{self.user_name}下载报告任务数据成功,任务ID: {task_id},文件路径: {self.file_path}")
-            return report_data
+            temp_file_path = self.http_client.download_file(file_url,table_header,data_start_row,self.file_path)
+            logger.info(f"{self.user_name}下载报告任务数据成功,任务ID: {task_id},文件路径: {temp_file_path}")
+            return temp_file_path
         except HttpClientError as e:
             logger.error(f"{self.user_name}下载报告任务数据失败,任务ID: {task_id},响应数据: {response},错误信息: {e}")
             raise HttpClientError(f"{self.user_name}下载报告任务数据失败,任务ID: {task_id},响应数据: {response},错误信息: {e}")
-        
-        
-    def process_report_data(self):
-        pass
-    def save_report_data(self):
-        pass
+    def process_report_data(self,temp_file_path:Path):
+        """生成器函数，从文件读取数据
+        第一行是表头，直接返回
+        后续每次yield一行数据，以tuple形式，每行内部以\t分割数据
+        """
+        with open(temp_file_path,'r',encoding='utf-8') as f:
+            # 逐行读取数据并yield
+            for line in f:
+                line = line.strip()
+                if line:  # 跳过空行
+                    # 以制表符分割数据，返回tuple
+                    yield tuple(line.split('\t'))
+
+    def save_report_data(self,data_generator:Generator[tuple,None,None]):
+        table_header = next(data_generator)
+        for data in data_generator:
+            #将table_header和data组合成一个dict
+            data_dict = dict(zip(table_header,data))
+            print(data_dict)
+
+
+
     def run(self,report_name:str):
         task_id = self.create_report_task(report_name)
-        self.fetch_report_data(task_id)
-        self.process_report_data()
-        self.save_report_data()
+        temp_file_path = self.fetch_report_data(task_id)
+        data_generator = self.process_report_data(temp_file_path)
+        self.save_report_data(data_generator)
     
 
 

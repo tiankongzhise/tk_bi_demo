@@ -98,7 +98,7 @@ class BaiduHttpClient(object):
 
 
     @accept_both_cases('file_url', 'table_header', 'data_start_row', 'file_path')
-    def download_file(self, file_url: str, table_header: list[str], data_start_row: int, file_path: str|Path) -> bool:
+    def download_file(self, file_url: str, table_header: list[str], data_start_row: int, file_path: str|Path) -> Path:
         """下载文件到指定位置,file_url为文件的下载链接,
         table_header为文件的表头列名,需要保序,并根据传入的table_header写入表头
         data_start_row指定数据起始行,数据在文件中的起始行。文件的前几行为表头或其他信息,data_start_row为数据的起始行,
@@ -159,5 +159,5 @@ class BaiduHttpClient(object):
             # 写入数据行（保持原始制表符分隔格式）
             for line in data_lines:
                 f.write(line + '\n')
-        return True
+        return file_path
 
