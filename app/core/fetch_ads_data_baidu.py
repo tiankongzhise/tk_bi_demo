@@ -121,30 +121,32 @@ class FetchAdsDataBaiduCore:
         后续每次yield一行数据，以tuple形式，每行内部以\t分割数据
         """
         header_line = None
-        table_colums = ['report_date','user_name','campaign_id','wInfo_id']
+        table_colums = ['report_date','user_name','campaign_id','w_info_id']
         
         with open(file_path,'r',encoding='utf-8') as f:
-            # 逐行读取数据并yield
-            for line in f:
-                line = line.strip()
-                if line:  # 跳过空行
+             # 逐行读取数据并yield
+             for line in f:
+                 line = line.strip()
+                 if line:  # 跳过空行
                     # 以制表符分割数据，返回tuple
                     temp_data =  tuple(line.split('\t'))
                     if header_line is None:
                         header_line = temp_data
                         header_line = [camel_to_snake(header) for header in header_line]
+                        continue  # 跳过表头行，不处理为数据
+                    
                     data_dict = dict(zip(header_line,temp_data))
                     date_str = data_dict.pop('date')
                     date_datetime = datetime.strptime(date_str,'%Y-%m-%d')
-                    print(f'\ndate_str: {date_str}\n')
-                    print(f'\ndate_datetime: {date_datetime}\n')
-
-
                     data_dict['report_date'] = date_datetime
                     temp_dict = {'data_json':{}}
                     for key,value in data_dict.items():
                         if key in table_colums:
-                            temp_dict[key] = value
+                            # 将campaign_id和w_info_id转换为整数
+                            if key in ['campaign_id', 'w_info_id']:
+                                temp_dict[key] = int(value)
+                            else:
+                                temp_dict[key] = value
                         else:
                             temp_dict['data_json'][key] = value
                     yield temp_dict
