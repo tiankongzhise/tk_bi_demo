@@ -1,5 +1,6 @@
 from .schemas import (
-    OauthCredentialsTable
+    OauthCredentialsTable,
+    OdsAdsBaiduKeywordDaily,
 )
 
 from .oauth import (
@@ -8,7 +9,10 @@ from .oauth import (
     update_oauth_info,
 )
 from . import oauth
-
+from .report_data_baidu import (
+    insert_baidu_keyword_daily,
+)
+from . import report_data_baidu
 
 
 print('i have done!')
@@ -21,6 +25,12 @@ __all__ = [
     "update_oauth_info",
     
     # schemas
-    "OauthCredentialsTable",
     "schemas",
+    "OauthCredentialsTable",
+    "OdsAdsBaiduKeywordDaily",
+    
+    # report_data_baidu
+    "report_data_baidu",
+    "insert_baidu_keyword_daily",
+
 ]

@@ -1,12 +1,15 @@
 from ..logger import create_logger,logger_wrapper
 from ..config import get_config_settings
 from .baidu_http_core import BaiduHttpClient
-from ..utils import accept_both_cases
+from ..utils import camel_to_snake
+from ..database import insert_baidu_keyword_daily
+
 from tk_base_utils.tk_http.exceptions import TimeoutError,HttpClientError
 from pathlib import Path
 from typing import Generator
 
 import time
+from datetime import datetime
 logger = create_logger(__name__)
 
 
@@ -84,25 +87,23 @@ class FetchAdsDataBaiduCore:
         except HttpClientError as e:
             logger.error(f"{self.user_name}下载报告任务数据失败,任务ID: {task_id},响应数据: {response},错误信息: {e}")
             raise HttpClientError(f"{self.user_name}下载报告任务数据失败,任务ID: {task_id},响应数据: {response},错误信息: {e}")
-    def process_report_data(self,temp_file_path:Path):
-        """生成器函数，从文件读取数据
-        第一行是表头，直接返回
-        后续每次yield一行数据，以tuple形式，每行内部以\t分割数据
-        """
-        with open(temp_file_path,'r',encoding='utf-8') as f:
-            # 逐行读取数据并yield
-            for line in f:
-                line = line.strip()
-                if line:  # 跳过空行
-                    # 以制表符分割数据，返回tuple
-                    yield tuple(line.split('\t'))
+    def process_report_data(self,file_path:Path):
+        if 'keyword_day' in self.report_name:
+            return self._process_baidu_keyword_daily(file_path)
+
 
     def save_report_data(self,data_generator:Generator[tuple,None,None]):
-        table_header = next(data_generator)
-        for data in data_generator:
-            #将table_header和data组合成一个dict
-            data_dict = dict(zip(table_header,data))
-            print(data_dict)
+        if 'keyword_day' in self.report_name:
+            insert_result = insert_baidu_keyword_daily(data_generator)
+            logger.info(f"{self.user_name}保存报告数据完成,报告类型: {self.report_name},插入结果: {insert_result}")
+            return insert_result
+
+
+
+
+
+        logger.error(f"{self.user_name}不支持的报告类型: {self.report_name}")
+        raise HttpClientError(f"{self.user_name}不支持的报告类型: {self.report_name}")
 
 
 
@@ -112,5 +113,40 @@ class FetchAdsDataBaiduCore:
         data_generator = self.process_report_data(temp_file_path)
         self.save_report_data(data_generator)
     
+
+
+    def _process_baidu_keyword_daily(self,file_path:Path):
+        """生成器函数，从文件读取数据
+        第一行是表头，直接返回
+        后续每次yield一行数据，以tuple形式，每行内部以\t分割数据
+        """
+        header_line = None
+        table_colums = ['report_date','user_name','campaign_id','wInfo_id']
+        
+        with open(file_path,'r',encoding='utf-8') as f:
+            # 逐行读取数据并yield
+            for line in f:
+                line = line.strip()
+                if line:  # 跳过空行
+                    # 以制表符分割数据，返回tuple
+                    temp_data =  tuple(line.split('\t'))
+                    if header_line is None:
+                        header_line = temp_data
+                        header_line = [camel_to_snake(header) for header in header_line]
+                    data_dict = dict(zip(header_line,temp_data))
+                    date_str = data_dict.pop('date')
+                    date_datetime = datetime.strptime(date_str,'%Y-%m-%d')
+                    print(f'\ndate_str: {date_str}\n')
+                    print(f'\ndate_datetime: {date_datetime}\n')
+
+
+                    data_dict['report_date'] = date_datetime
+                    temp_dict = {'data_json':{}}
+                    for key,value in data_dict.items():
+                        if key in table_colums:
+                            temp_dict[key] = value
+                        else:
+                            temp_dict['data_json'][key] = value
+                    yield temp_dict
 
 

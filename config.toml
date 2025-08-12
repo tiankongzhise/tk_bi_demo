@@ -36,7 +36,7 @@ database = "test_db"  # 数据库名称
 driver = "pymysql"              # 数据库驱动 (pymysql, psycopg2, sqlite等)
 dialect = "mysql"               # 数据库方言 (mysql, postgresql, sqlite等)
 charset = "utf8mb4"             # 字符集
-collation = "utf8mb4_general_ci" # 排序规则
+collation = "utf8mb4_0900_ai_ci" # 排序规则
 
 
 # SQLAlchemy 引擎配置
