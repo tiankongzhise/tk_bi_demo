@@ -128,7 +128,20 @@ class ConfigManager:
                 config['endDate'] = end_date
         
         return config
+    @property
+    def baidu_report_name_list(self) -> list:
+        """获取百度报告名称列表"""
+        return self.get('report_config.baidu.report_list', [])
     
+    @property
+    def baidu_user_name_list(self) -> list:
+        """获取百度用户名称列表"""
+        return self.get('report_config.baidu.user_name_list', [])
+
+    @property
+    def temp_dir(self) -> str:
+        """获取临时目录"""
+        return self.get('global_config.temp_dir', './temp')
     @property
     def http_config(self) -> Dict[str, Any]:
         """获取HTTP配置"""

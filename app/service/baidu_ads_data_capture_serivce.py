@@ -3,6 +3,10 @@ from ..utils import (
 )
 from ..core import BaiduOauthCore,FetchAdsDataBaiduCore
 from ..config import get_config_settings
+from ..logger import create_logger
+
+logger = create_logger(__name__)
+
 
 
 
@@ -16,13 +20,23 @@ class BaiduAdsDataCaptureService(AdsDataCaptureFactory):
         oauth_core = BaiduOauthCore(self.controller_name,self.controller_id)
         oauth_credentials = oauth_core.oauth()
         self.access_token = oauth_credentials.access_token
+        logger.info(f"获取到的百度广告账户{self.controller_name}的access_token为:{self.access_token}")
         return self
-    def get_ads_report_data(self,user_name:str,report_name:str):
-        if not hasattr(self,'access_token'):
-            self.oauth()
-        fetch_ads_data_baidu_core = FetchAdsDataBaiduCore(self.access_token,user_name)
-        report_task = fetch_ads_data_baidu_core.create_report_task(report_name)
-        return report_task
+    
+    def get_ads_report_data(self):
+        user_name_list = self.config_settings.baidu_user_name_list
+        report_name_list = self.config_settings.baidu_report_name_list
+        temp_dir = self.config_settings.temp_dir
+        for user_name in user_name_list:
+            for report_name in report_name_list:
+                fetch_ads_data_baidu_core = FetchAdsDataBaiduCore(self.access_token,user_name,temp_dir)
+                fetch_ads_data_baidu_core.run(report_name)
+                logger.info(f"获取百度广告账户{self.controller_name}的用户{user_name}的报告{report_name}的数据结束")
+        return self
+
+
+
+
         
     def get_ads_account_structure(self):
         pass
@@ -33,4 +47,6 @@ class BaiduAdsDataCaptureService(AdsDataCaptureFactory):
     def notify_result(self):
         pass
     def run(self):
-        pass
+        self.oauth().get_ads_report_data()
+
+

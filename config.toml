@@ -1,3 +1,5 @@
+[global_config]
+temp_dir = "./temp"
 [logging]
 # 日志器名称
 name = "tk-bi-demo"
@@ -62,13 +64,13 @@ controler_name = '金蛛账户中心'
 [report_config]
 [report_config.baidu]
 user_name_list = ["金蛛-新账户5"]
-report_list = ["keyword_day"]
+report_list = ["keyword_day","keyword_hour"]
 [report_config.baidu.keyword_day]
 reportType = "2602783"
 timeUnit = "DAY"
-startDate = '2025-08-05'
-endDate = '2025-08-05'
-date_range = 'week'
+startDate = '2025-08-01'
+endDate = '2025-08-03'
+# date_range = 'week'
 columns = []
 sorts = []
 filters = []
@@ -76,9 +78,9 @@ needSum = false
 [report_config.baidu.keyword_hour]
 reportType = "2602783"
 timeUnit = "HOUR"
-startDate = '2025-08-05'
-endDate = '2025-08-05'
-date_range = 'week'
+startDate = '2025-08-01'
+endDate = '2025-08-03'
+# date_range = 'week'
 columns = []
 sorts = []
 filters = []
@@ -112,4 +114,5 @@ user_agent= "HttpClient/0.1.0"
 # HTTP配置
 follow_redirects = true  # 是否跟随重定向
 verify_ssl = true  # 是否验证SSL证书
+
 
