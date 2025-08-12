@@ -73,6 +73,16 @@ columns = []
 sorts = []
 filters = []
 needSum = false
+[report_config.baidu.keyword_hour]
+reportType = "2602783"
+timeUnit = "HOUR"
+startDate = '2025-08-05'
+endDate = '2025-08-05'
+date_range = 'week'
+columns = []
+sorts = []
+filters = []
+needSum = false
 
 
 [http_config]

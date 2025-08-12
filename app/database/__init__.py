@@ -11,6 +11,8 @@ from .oauth import (
 from . import oauth
 from .report_data_baidu import (
     insert_baidu_keyword_daily,
+    insert_baidu_keyword_hour,
+
 )
 from . import report_data_baidu
 
@@ -32,5 +34,7 @@ __all__ = [
     # report_data_baidu
     "report_data_baidu",
     "insert_baidu_keyword_daily",
+    "insert_baidu_keyword_hour",
+
 
 ]

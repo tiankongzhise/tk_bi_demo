@@ -10,7 +10,7 @@ def run():
     access_token = baidu_oauth_credentials.access_token
     fetch_ads_data_baidu_core = FetchAdsDataBaiduCore(access_token,"金蛛-新账户5",Path("./temp"))
 
-    fetch_ads_data_baidu_core.run("keyword_day")
+    fetch_ads_data_baidu_core.run("keyword_hour")
 
 
 

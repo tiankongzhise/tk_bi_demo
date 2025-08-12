@@ -45,6 +45,22 @@ class OdsAdsBaiduKeywordDaily(BaseTableEnhanced):
         {"schema": "ods_ads"},
     )
 
+class OdsAdsBaiduKeywordHour(BaseTableEnhanced):
+    __tablename__ = "ods_ads_baidu_keyword_hour"
+    id: Mapped[int] = mapped_column(Integer,primary_key=True, autoincrement=True)
+    report_date:Mapped[datetime] = mapped_column(Date)
+    hour:Mapped[int] = mapped_column(Integer)
+    user_name:Mapped[str] = mapped_column(VARCHAR(20))
+    campaign_id:Mapped[int] = mapped_column(Integer)
+    w_info_id:Mapped[int] = mapped_column(BigInteger)
+    data_json:Mapped[dict] = mapped_column(JSON)
+    
+    __table_args__ = (
+        UniqueConstraint("report_date", "hour", "campaign_id", "w_info_id", name="uix_report_date_hour_campaign_id_w_info_id"),
+        Index("idx_report_date_user_name", "report_date", "user_name"),
+        {"schema": "ods_ads"},
+    )
+
 
     
 
