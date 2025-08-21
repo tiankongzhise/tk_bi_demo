@@ -34,7 +34,7 @@ class FetchAdsDataBaiduCore:
         self.report_name = report_name
         report_params = self.config_settings.get_baidu_report_config(report_name)
         response = self.http_client.create_report_task(**report_params)
-        logger.info(f"{self.user_name}创建报告任务响应: {response}")
+        logger.info_core(f"{self.user_name}创建报告任务响应: {response}")
         if response.get('header',{}).get('desc','') == 'success':
             try:
                 task_id = response['body']['data'][0]['taskId']
@@ -43,7 +43,7 @@ class FetchAdsDataBaiduCore:
                 logger.error(f"{self.user_name}创建报告任务失败,响应数据异常: {e},response:{response}")
                 raise HttpClientError(f"{self.user_name}创建报告任务失败,响应数据异常: {e},response:{response}")
 
-            logger.info(f"{self.user_name}创建报告任务成功,任务ID: {task_id}")
+            logger.info_core(f"{self.user_name}创建报告任务成功,任务ID: {task_id}")
             return task_id
         else:
             logger.error(f"{self.user_name}创建报告任务失败,响应数据异常: {response}")
@@ -51,7 +51,7 @@ class FetchAdsDataBaiduCore:
 
     def get_task_status(self,task_id:str|int):
         response = self.http_client.get_report_task_status(task_id)
-        logger.info(f"{self.user_name}获取报告任务状态响应: {response}")
+        logger.info_core(f"{self.user_name}获取报告任务状态响应: {response}")
         return response
     def fetch_report_data(self,task_id:str|int):
         time_cost = 0
@@ -59,7 +59,7 @@ class FetchAdsDataBaiduCore:
             response = self.get_task_status(task_id)
             status = response.get('body',{}).get('data',[{}])[0].get('taskStatus','')
             if status == 'SUCCESS':
-                logger.info(f"{self.user_name}获取报告任务数据成功,任务ID: {task_id},响应数据: {response}")
+                logger.info_core(f"{self.user_name}获取报告任务数据成功,任务ID: {task_id},响应数据: {response}")
                 break
             elif status == 'FAIL':
                 logger.error(f"{self.user_name}获取报告任务数据失败,任务ID: {task_id},响应数据: {response}")
@@ -82,7 +82,7 @@ class FetchAdsDataBaiduCore:
         self.file_path.parent.mkdir(parents=True,exist_ok=True)
         try:
             temp_file_path = self.http_client.download_file(file_url,table_header,data_start_row,self.file_path)
-            logger.info(f"{self.user_name}下载报告任务数据成功,任务ID: {task_id},文件路径: {temp_file_path}")
+            logger.info_core(f"{self.user_name}下载报告任务数据成功,任务ID: {task_id},文件路径: {temp_file_path}")
             return temp_file_path
         except HttpClientError as e:
             logger.error(f"{self.user_name}下载报告任务数据失败,任务ID: {task_id},响应数据: {response},错误信息: {e}")
@@ -99,11 +99,11 @@ class FetchAdsDataBaiduCore:
     def save_report_data(self,data_generator:Generator[tuple,None,None]):
         if 'keyword_day' in self.report_name:
             insert_result = insert_baidu_keyword_daily(data_generator)
-            logger.info(f"{self.user_name}保存报告数据完成,报告类型: {self.report_name},插入结果: {insert_result}")
+            logger.info_core(f"{self.user_name}保存报告数据完成,报告类型: {self.report_name},插入结果: {insert_result}")
             return insert_result
         elif 'keyword_hour' in self.report_name:
             insert_result = insert_baidu_keyword_hour(data_generator)
-            logger.info(f"{self.user_name}保存报告数据完成,报告类型: {self.report_name},插入结果: {insert_result}")
+            logger.info_core(f"{self.user_name}保存报告数据完成,报告类型: {self.report_name},插入结果: {insert_result}")
             return insert_result
 
 

@@ -30,8 +30,8 @@ def refresh_access_http_client(app_id:str,secret_key:str,refresh_token:str,user_
 
 class BaiduOauthCore:
     def __init__(self,controler_name:str,controler_id:str|None = None,**kwargs):
-        logger.info('BaiduOauthCore init!')
-        logger.debug(f'controler_name:{controler_name},controler_id:{controler_id},kwargs:{kwargs}')
+        logger.info_core('BaiduOauthCore init!')
+        logger.info_core(f'controler_name:{controler_name},controler_id:{controler_id},kwargs:{kwargs}')
         self.controler_name = controler_name
         self.controler_id = controler_id
         self.kwargs = kwargs

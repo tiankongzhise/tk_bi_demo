@@ -161,3 +161,26 @@ class BaiduHttpClient(object):
                 f.write(line + '\n')
         return file_path
 
+
+    @accept_both_cases('start_time')
+    def get_changed_scale(self,start_time:str,campaign_ids:list[int]|None = None,**kwargs):
+        """获取变更规模
+        获取完整账户下，或者指定计划ID下的变化物料规模，从而帮助用户决定后续的最近更新策略。当有变化的物料规模大于一定比例时，用户不妨选择整账户下载
+        注：变化物料仅指因用户操作发生的变化，即在历史操作记录中可以查询到的操作。而对于质量度，状态这些在系统内自动发生的改变不在统计范围内
+        """
+        url = 'https://api.baidu.com/json/sms/service/BulkJobService/getChangedScale'
+        if campaign_ids is None:
+            campaign_ids = []
+        json_params = {
+            "header":self._query_headers,
+            "body":{
+                "startTime":start_time,
+                "campaignIds":campaign_ids,
+                **kwargs
+            }
+        }
+        with self.client as client:
+            rsp = client.post(url,json=json_params)
+        return rsp.json()
+
+

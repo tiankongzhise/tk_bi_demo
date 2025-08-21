@@ -5,7 +5,8 @@ temp_dir = "./temp"
 name = "tk-bi-demo"
 
 # 日志级别 (DEBUG, INFO, WARNING, ERROR, CRITICAL)
-level = "DEBUG"
+level = "INFO_SERVICE"
+
 
 # 日志格式
 format = "%(asctime)s - %(name)s - %(caller_filename)s - %(caller_lineno)s - %(levelname)s - %(message)s"

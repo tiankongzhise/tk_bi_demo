@@ -88,7 +88,7 @@ class ConfigManager:
         """获取百度账户结构配置"""
         return self.get('baidu_account_structure', {})
     
-    @logger_wrapper()
+    @logger_wrapper(level="INFO_CONFIG")
     def get_baidu_report_config(self, report_name: str) -> Dict[str, Any]:
         """获取百度报告配置
         

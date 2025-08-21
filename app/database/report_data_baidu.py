@@ -13,7 +13,7 @@ def insert_baidu_keyword_daily(data:Generator[dict,None,None]):
     try:
         with db_client.session_scope as session:
             session.execute(stmt,data)
-        logger.info("OdsAdsBaiduKeywordDaily insert success")
+        logger.info_database("OdsAdsBaiduKeywordDaily insert success")
         return True
     except Exception as e:
         logger.error(f"OdsAdsBaiduKeywordDaily insert error {e}")
@@ -26,7 +26,7 @@ def insert_baidu_keyword_hour(data:Generator[dict,None,None]):
     try:
         with db_client.session_scope as session:
             session.execute(stmt,data)
-        logger.info("OdsAdsBaiduKeywordHour insert success")
+        logger.info_database("OdsAdsBaiduKeywordHour insert success")
         return True
     except Exception as e:
         logger.error(f"OdsAdsBaiduKeywordHour insert error {e}")
