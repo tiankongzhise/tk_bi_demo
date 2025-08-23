@@ -1,6 +1,6 @@
 from ..logger import create_logger,logger_wrapper
 from ..config import get_config_settings
-from .baidu_http_core import BaiduHttpClient
+from ..kernel import BaiduHttpClient
 from ..utils import camel_to_snake
 from ..database import insert_baidu_keyword_daily,insert_baidu_keyword_hour
 
@@ -19,7 +19,7 @@ class FetchAdsDataBaiduCore:
     """
     百度广告数据获取核心类
     """
-    @logger_wrapper()
+    @logger_wrapper(level="INFO_CORE")
     def __init__(self,access_token:str,user_name:str,temp_dir:str|Path) -> None:
 
         self.config_settings = get_config_settings()
@@ -29,7 +29,7 @@ class FetchAdsDataBaiduCore:
         self.temp_dir:str|Path = temp_dir
         self.report_name:str = None
 
-    @logger_wrapper()
+    @logger_wrapper(level="INFO_CORE")
     def create_report_task(self,report_name:str):
         self.report_name = report_name
         report_params = self.config_settings.get_baidu_report_config(report_name)

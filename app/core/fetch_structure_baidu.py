@@ -1,6 +1,6 @@
 from ..logger import create_logger,logger_wrapper
 from ..config import get_config_settings
-from .baidu_http_core import BaiduHttpClient
+from ..kernel import BaiduHttpClient
 from ..utils import camel_to_snake
 from ..database import insert_baidu_keyword_daily,insert_baidu_keyword_hour
 

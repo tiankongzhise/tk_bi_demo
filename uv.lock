@@ -195,15 +195,15 @@ wheels = [
 
 [[package]]
 name = "tk-base-utils"
-version = "0.3.1"
+version = "0.3.4"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "httpx" },
     { name = "pydantic" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/cd/52/5f418605da64a390943165801c171720a0abf4c867618ee9d9081dfadd3b/tk_base_utils-0.3.1.tar.gz", hash = "sha256:64d2c87dfcacee476eeafac2028ae4d7c0153ebbedbc19e060280feb1bbbee01", size = 23571 }
+sdist = { url = "https://files.pythonhosted.org/packages/0a/19/9dc8eb1d09c6aecbe7075c8165c0e946405ab024bab6bce94d2cdbd70596/tk_base_utils-0.3.4.tar.gz", hash = "sha256:0395e425cb87cef99a2909b6af61fdc8f7e0480cdc5014bb5921ab0a021ce308", size = 26926 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/c4/49/139e4bd12149223e1816bf2e02fd625891876b9eba1990bcd7eff67aa461/tk_base_utils-0.3.1-py3-none-any.whl", hash = "sha256:08b29d48381313cb238e97935a0288d73ef8320e86053348195e490e184d6658", size = 30372 },
+    { url = "https://files.pythonhosted.org/packages/c1/b3/3e526db44cba9e09dd058cd29a44b737405c58ea0d183bdabddb398f92e9/tk_base_utils-0.3.4-py3-none-any.whl", hash = "sha256:668c07abf2a2bd5382cb533a5ec6dea6677993d1f2cf09ab4b7514c757bf8cbd", size = 34688 },
 ]
 
 [[package]]
@@ -217,13 +217,13 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
-    { name = "tk-base-utils", specifier = ">=0.3.1" },
-    { name = "tk-db-utils", specifier = ">=0.2.0" },
+    { name = "tk-base-utils", specifier = ">=0.3.4" },
+    { name = "tk-db-utils", specifier = ">=0.2.1" },
 ]
 
 [[package]]
 name = "tk-db-utils"
-version = "0.2.0"
+version = "0.2.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "pydantic" },
@@ -232,9 +232,9 @@ dependencies = [
     { name = "sqlalchemy" },
     { name = "tk-base-utils" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/11/e9/4a0fd1695077226d0ada98764c43650129922dcf62beeb41d1220d5cd374/tk_db_utils-0.2.0.tar.gz", hash = "sha256:5c1f40c18d37fdecbc6828caf046eeaaa2e5c9974dd1e331d0895202684fb116", size = 55811 }
+sdist = { url = "https://files.pythonhosted.org/packages/0e/3d/227b2d82fa80d75ee045d7042a42b2545a0a605579b33140db8a68090f4c/tk_db_utils-0.2.1.tar.gz", hash = "sha256:bd7393531d99d0693ea39babe8c3caa66de3355adfb32d20909e9102124fc0bd", size = 58215 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/d7/2d/919390c93b3bfd34b36f3c2f7594c4dee646190dce4fa8c971e9d55a8671/tk_db_utils-0.2.0-py3-none-any.whl", hash = "sha256:6c365a9049ff809ffc5d3d174691682fa83e7b23ae60743e50bc41d6696512a5", size = 33532 },
+    { url = "https://files.pythonhosted.org/packages/74/85/778315757648173bbc12035e8367ece45cd2a51d3accac081da3cfac815b/tk_db_utils-0.2.1-py3-none-any.whl", hash = "sha256:afcd2f8261c958b4184dbae6b7fb26beb7108534787ad6c7292c952e0bae4403", size = 33405 },
 ]
 
 [[package]]
