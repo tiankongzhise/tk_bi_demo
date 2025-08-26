@@ -282,3 +282,19 @@ class BaiduHttpClient(object):
         with self.client as client:
             rsp = client.post(url,json=json_params)
         return rsp.json()
+
+    def cancel_download(self,file_id:str):
+        """取消下载
+        方法说明
+        取消指定文件的下载任务。
+        """
+        url = 'https://api.baidu.com/json/sms/service/BulkJobService/cancelDownload'
+        json_params = {
+            "header":self._query_headers,
+            "body":{
+                "fileId":file_id,
+            }
+        }
+        with self.client as client:
+            rsp = client.post(url,json=json_params)
+        return rsp.json()
