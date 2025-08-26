@@ -12,7 +12,7 @@ import time
 from datetime import datetime
 logger = create_logger(__name__)
 
-class FetchStructureBaidu:
+class FetchStructureBaiduCore:
     def __init__(self,access_token:str,user_name:str,temp_dir:str) -> None:
         self.config_settings = get_config_settings()
         self.http_client = BaiduHttpClient()

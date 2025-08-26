@@ -17,8 +17,6 @@ from .report_data_baidu import (
 from . import report_data_baidu
 
 
-print('i have done!')
-
 __all__ = [
     # oauth
     "oauth",

@@ -183,4 +183,102 @@ class BaiduHttpClient(object):
             rsp = client.post(url,json=json_params)
         return rsp.json()
 
+    @accept_both_cases('start_time','item_type')
+    def get_changed_item_id(self,start_time:str,
+                            item_type:int,
+                            ids:list[int]|None = None,
+                            **kwargs):
+        """
+        获取有变化物料id
+        获取从指定时间到当前时间段内有变化的物料id。默认返回数据限制不超过两万条。 超过数量限制的物料id，可使用分页参数请求获得。
+        """
+        url = 'https://api.baidu.com/json/sms/service/BulkJobService/getChangedItemId'
+        json_params = {
+            "header":self._query_headers,
+            "body":{
+                "startTime":start_time,
+                "itemType":item_type,
+                "ids":ids or [],
+                **kwargs
+            }
+        }
+        with self.client as client:
+            rsp = client.post(url,json=json_params)
+        return rsp.json()
 
+    @accept_both_cases('start_time')
+    def get_all_changed_objects(self,start_time:str,
+                                campaign_ids:list[int]|None=None,
+                                mobile_extend:int=0,
+                                include_temp:bool=True,
+                                **kwargs):
+        """增量下载
+        方法说明
+        通过该接口获取完整账户下，或者指定计划ID下的有变化的物料信息。该接口为异步接口，返回请求的结果文件ID。定制需要返回的层级文件，以及各层级文件中的数据列
+        """
+        url = 'https://api.baidu.com/json/sms/service/BulkJobService/getAllChangedObjects'
+        json_params = {
+            "header":self._query_headers,
+            "body":{
+                "startTime":start_time,
+                "campaignIds":campaign_ids or [],
+                "mobileExtend":mobile_extend,
+                "includeTemp":include_temp,
+                **kwargs
+            }
+        }
+        with self.client as client:
+            rsp = client.post(url,json=json_params)
+        return rsp.json()
+
+    def get_file_status(self,file_id:str):
+        """查询文件状态
+        方法说明
+        在调用getAllObejects、getAllChangedObjects接口后使用，以查询请求的文件是否已生成。
+        """
+        url = 'https://api.baidu.com/json/sms/service/BulkJobService/getFileStatus'
+        json_params = {
+            "header":self._query_headers,
+            "body":{
+                "fileId":file_id,
+            }
+        }
+        with self.client as client:
+            rsp = client.post(url,json=json_params)
+        return rsp.json()
+
+    def get_file_path(self,file_id:str):
+        """获取文件下载地址
+        方法说明
+        返回请求的文件下载地址。使用接口：getAllObjects，getAllChangedObjects。按照请求的下载文件顺序返回。
+        """
+        url = 'https://api.baidu.com/json/sms/service/BulkJobService/getFilePath'
+        json_params = {
+            "header":self._query_headers,
+            "body":{
+                "fileId":file_id,
+            }
+        }
+        with self.client as client:
+            rsp = client.post(url,json=json_params)
+        return rsp.json()
+
+    def get_all_objects(self,campaign_ids:list[int]|None=None,**kwargs):
+        """整账户下载
+        方法说明
+        获取指定账户下的完整数据（计划、单元、关键词、创意、素材）
+        获取指定计划下的完整数据（计划、单元、关键词、创意、素材）
+        定制需要返回的层级文件，以及各层级文件中的数据列
+        关键词层级新增关键词指导价1个字段（计算机指导价、移动指导价），本次新增内容非基本字段，通过all无法直接获取；如需获取参考如下：举例：如需获取计算机指导价，可通过新增请求字段方式获取keywordFields ["all","leftPriceGuide"]
+        """
+        url = 'https://api.baidu.com/json/sms/service/BulkJobService/getAllObjects'
+        json_params = {
+            "header":self._query_headers,
+            "body":{
+                "campaignIds":campaign_ids or [],
+                **kwargs
+            }
+        }
+        with self.client as client:
+            rsp = client.post(url,json=json_params)
+        return rsp.json()
