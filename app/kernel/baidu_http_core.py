@@ -298,3 +298,8 @@ class BaiduHttpClient(object):
         with self.client as client:
             rsp = client.post(url,json=json_params)
         return rsp.json()
+
+    def download_object(self,file_url:str,download_dir:str|Path):
+        """下载文件"""
+        ...
+
