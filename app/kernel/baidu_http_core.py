@@ -299,7 +299,108 @@ class BaiduHttpClient(object):
             rsp = client.post(url,json=json_params)
         return rsp.json()
 
-    def download_object(self,file_url:str,download_dir:str|Path):
-        """下载文件"""
-        ...
+    @accept_both_cases('file_url', 'download_dir')
+    def download_object(self, file_url: str, download_dir: str | Path, expected_md5: str = None, max_retries: int = 3) -> dict:
+        """下载文件到指定目录
+        
+        Args:
+            file_url: 文件下载URL
+            download_dir: 下载目录路径
+            expected_md5: 期望的MD5值，用于校验文件完整性
+            max_retries: 最大重试次数，默认3次
+            
+        Returns:
+            dict: 包含下载结果的字典
+                {
+                    'success': bool,  # 下载是否成功
+                    'file_path': str,  # 下载文件的完整路径
+                    'file_name': str,  # 文件名
+                    'md5': str,  # 文件的MD5值
+                    'error': str  # 错误信息（如果有）
+                }
+        """
+        import hashlib
+        import time
+        from urllib.parse import urlparse, unquote
+        
+        download_dir = Path(download_dir)
+        download_dir.mkdir(parents=True, exist_ok=True)
+        
+        # 从URL中提取文件名
+        parsed_url = urlparse(file_url)
+        file_name = unquote(parsed_url.path.split('/')[-1])
+        if not file_name or file_name == '/':
+            # 如果无法从URL提取文件名，使用时间戳生成
+            file_name = f"download_{int(time.time())}.txt"
+        
+        file_path = download_dir / file_name
+        
+        for attempt in range(max_retries + 1):
+            try:
+                with self.client as client:
+                    response = client.get(file_url, default_headers=False)
+                    
+                    if response.status_code != 200:
+                        if attempt == max_retries:
+                            return {
+                                'success': False,
+                                'file_path': str(file_path),
+                                'file_name': file_name,
+                                'md5': None,
+                                'error': f'HTTP错误: {response.status_code}'
+                            }
+                        continue
+                    
+                    # 写入文件
+                    with open(file_path, 'wb') as f:
+                        f.write(response.content)
+                    
+                    # 计算MD5
+                    md5_hash = hashlib.md5()
+                    with open(file_path, 'rb') as f:
+                        for chunk in iter(lambda: f.read(4096), b""):
+                            md5_hash.update(chunk)
+                    file_md5 = md5_hash.hexdigest()
+                    
+                    # 如果提供了期望的MD5值，进行校验
+                    if expected_md5 and file_md5.lower() != expected_md5.lower():
+                        if attempt == max_retries:
+                            return {
+                                'success': False,
+                                'file_path': str(file_path),
+                                'file_name': file_name,
+                                'md5': file_md5,
+                                'error': f'MD5校验失败: 期望{expected_md5}, 实际{file_md5}'
+                            }
+                        # MD5不匹配，删除文件并重试
+                        file_path.unlink(missing_ok=True)
+                        continue
+                    
+                    return {
+                        'success': True,
+                        'file_path': str(file_path),
+                        'file_name': file_name,
+                        'md5': file_md5,
+                        'error': None
+                    }
+                    
+            except Exception as e:
+                if attempt == max_retries:
+                    return {
+                        'success': False,
+                        'file_path': str(file_path),
+                        'file_name': file_name,
+                        'md5': None,
+                        'error': f'下载异常: {str(e)}'
+                    }
+                # 等待后重试
+                time.sleep(2 ** attempt)  # 指数退避
+        
+        return {
+            'success': False,
+            'file_path': str(file_path),
+            'file_name': file_name,
+            'md5': None,
+            'error': '达到最大重试次数'
+        }
 
