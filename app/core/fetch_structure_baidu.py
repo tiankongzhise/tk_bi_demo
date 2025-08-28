@@ -124,9 +124,34 @@ class FetchStructureBaiduCore:
                                message=f'百度渠道,账户:{self.user_name},账户变化增量任务创建异常,异常信息: {e}',
                                data=None)
     
-    def get_all_objects(self):
+    def get_all_objects(self,query_params:dict|None = None):
         """全量下载"""
-        pass
+        if query_params is None:
+            query_params = {
+                'campaignIds':[]
+            }
+            query_params.update({
+                f'{level}Fields':['all'] for level in self._search_level_list
+            })
+            query_params['businessLabelFields'] = ['all']
+        
+        try:
+            rsp = self.http_client.get_all_objects(**query_params)
+            if rsp.get('body',{}).get('data',[{}])[0].get('fileId'):
+                logger.info_core(f"{self.user_name}增量下载成功,响应数据: {rsp}")
+                return ReturnModel(status='success',
+                                   message=f'百度渠道,账户:{self.user_name},账户变化增量任务创建成功',
+                                   data=rsp.get('body',{}).get('data',[{}])[0].get('fileId'))
+            else:
+                logger.info_core(f"{self.user_name}增量下载返回异常,响应数据: {rsp}")
+                return ReturnModel(status='error',
+                                   message=f'百度渠道,账户:{self.user_name},账户变化增量任务创建异常,响应数据: {rsp}',
+                                   data=None)
+        except Exception as e:
+            logger.error(f"{self.user_name}增量下载失败,异常信息: {e}")
+            return ReturnModel(status='error',
+                               message=f'百度渠道,账户:{self.user_name},账户变化增量任务创建异常,异常信息: {e}',
+                               data=None)
     
     def get_objects_status(self,file_id:str):
         """查询文件状态"""
@@ -176,7 +201,9 @@ class FetchStructureBaiduCore:
         """批量下载文件
         
         Args:
-            file_path_dict: 文件路径字典，格式为 {file_id: {'url': str, 'md5': str}}
+            file_path_dict: 文件路径字典，支持两种格式：
+                1. {file_id: {'url': str, 'md5': str}}
+                2. 百度API格式: {campaignFilePath: url, campaignFileMd5: md5, ...}
             max_workers: 最大并发下载数，默认3个
             
         Returns:
@@ -204,7 +231,10 @@ class FetchStructureBaiduCore:
                 'failed_files': []
             }
         
-        total_count = len(file_path_dict)
+        # 检测并转换数据格式
+        normalized_dict = self._normalize_file_path_dict(file_path_dict)
+        
+        total_count = len(normalized_dict)
         results = {}
         success_files = []
         failed_files = []
@@ -225,8 +255,8 @@ class FetchStructureBaiduCore:
                         'file_id': file_id
                     }
                 
-                # 生成包含文件ID的文件名
-                custom_filename = f"{self.user_name}_baidu_{file_id}.txt"
+                # 从URL中提取文件名
+                custom_filename = self._extract_filename_from_url(file_url, file_id)
                 
                 result = self.download_object(
                     file_url=file_url,
@@ -253,7 +283,7 @@ class FetchStructureBaiduCore:
             # 提交所有下载任务
             future_to_file = {
                 executor.submit(download_single_file, file_id, file_info): file_id
-                for file_id, file_info in file_path_dict.items()
+                for file_id, file_info in normalized_dict.items()
             }
             
             # 收集结果
@@ -304,6 +334,93 @@ class FetchStructureBaiduCore:
             'failed_files': failed_files
         }
     
+    def _normalize_file_path_dict(self, file_path_dict: dict) -> dict:
+        """标准化文件路径字典格式
+        
+        Args:
+            file_path_dict: 输入的文件路径字典
+            
+        Returns:
+            dict: 标准化后的字典，格式为 {file_id: {'url': str, 'md5': str}}
+        """
+        if not file_path_dict:
+            return {}
+        
+        # 检查是否已经是标准格式
+        first_key = next(iter(file_path_dict))
+        first_value = file_path_dict[first_key]
+        
+        if isinstance(first_value, dict) and 'url' in first_value:
+            # 已经是标准格式
+            return file_path_dict
+        
+        # 处理百度API格式：{campaignFilePath: url, campaignFileMd5: md5, ...}
+        normalized = {}
+        
+        # 提取所有以FilePath结尾的键作为文件ID
+        file_path_keys = [k for k in file_path_dict.keys() if k.endswith('FilePath')]
+        
+        for path_key in file_path_keys:
+            # 从campaignFilePath提取前缀，如campaign
+            prefix = path_key.replace('FilePath', '')
+            md5_key = f"{prefix}FileMd5"
+            
+            file_url = file_path_dict.get(path_key)
+            file_md5 = file_path_dict.get(md5_key)
+            
+            if file_url:  # 只有URL存在才添加
+                # 使用前缀作为file_id
+                normalized[prefix] = {
+                    'url': file_url,
+                    'md5': file_md5 or ''  # MD5可能为空
+                }
+        
+        return normalized
+    
+    def _extract_filename_from_url(self, file_url: str, file_id: str) -> str:
+        """从URL中提取文件名
+        
+        Args:
+            file_url: 文件下载URL
+            file_id: 文件ID作为备用
+            
+        Returns:
+            str: 提取的文件名
+        """
+        try:
+            # 查找meta/之后的部分
+            meta_index = file_url.find('/meta/')
+            if meta_index == -1:
+                # 如果没有找到meta/，使用默认命名
+                return f"{self.user_name}_baidu_{file_id}.txt"
+            
+            # 提取meta/之后到?之前的部分
+            start_index = meta_index + 6  # '/meta/'的长度是6
+            question_index = file_url.find('?', start_index)
+            
+            if question_index == -1:
+                # 如果没有找到?，取到字符串末尾
+                filename_part = file_url[start_index:]
+            else:
+                filename_part = file_url[start_index:question_index]
+            
+            # 提取最后一个/之后的部分作为文件名
+            if '/' in filename_part:
+                filename = filename_part.split('/')[-1]
+            else:
+                filename = filename_part
+            
+            # 如果提取的文件名为空，使用默认命名
+            if not filename:
+                return f"{self.user_name}_baidu_{file_id}.txt"
+            
+            # 添加账户名前缀
+            return f"{self.user_name}_baidu_{filename}"
+            
+        except Exception as e:
+            logger.warning(f"百度渠道,账户:{self.user_name},从URL提取文件名失败: {str(e)}, 使用默认命名")
+            return f"{self.user_name}_baidu_{file_id}.txt"
+     
     def download_object(self, file_url: str, expected_md5: str = None, custom_filename: str = None) -> dict:
         """下载单个文件到临时目录
         
@@ -410,7 +527,7 @@ class FetchStructureBaiduCore:
         re_cancel_time = 0
         while True:
             rsp = self.http_client.cancel_download(file_id)
-            if rsp.get('body',{}).get('data',[{}])[0].get('isCancelled') == 3:
+            if rsp.get('body',{}).get('data',[{}])[0].get('isCanceled') == 3:
                 return ReturnModel(status='success',
                                 message=f'百度渠道,账户:{self.user_name},文件ID:{file_id},取消下载成功,响应数据: {rsp}',
                                 data=file_id)
@@ -427,7 +544,7 @@ class FetchStructureBaiduCore:
     
     def choose_get_objects_function(self):
         """选择全量下载还是增量下载"""
-        changed_count = self.get_changed_scale(self._start_time)
+        changed_count = self.get_changed_scale()
         if changed_count > self._max_changed_count:
             logger.info_core(f"变更数据量{changed_count}大于{self._max_changed_count},选择全量下载")
             return self.get_all_objects
@@ -436,17 +553,28 @@ class FetchStructureBaiduCore:
             return self.get_changed_objects
         
     
-    def create_objects_task(self):
-        """创建下载任务"""
-        pass
 
+    def run(self,download_all_objects:bool=False, start_time:str|None=None,max_changed_count:int|None=None):
+        """获取账户结构到本地"""
+        if start_time:
+            self._start_time = start_time
+        if max_changed_count:
+            self._max_changed_count = max_changed_count
+        if download_all_objects:
+            func = self.get_all_objects
+        else:
+            func = self.choose_get_objects_function()
+        rsp = func()
+        if rsp.status != 'success':
+            return rsp
+        rsp = self.get_objects_status(rsp.data)
+        if rsp.status != 'success':
+            return rsp
+        rsp = self.get_objects_file_path(rsp.data)
+        if rsp.status != 'success':
+            return rsp
+        rsp = self.download_objects(rsp.data)
+        return rsp
 
-    def run(self):
-        """运行"""
-        self.get_changed_scale()
-        self.choose_get_objects_function()
-        self.create_objects_task()
-        self.get_objects_status()
-        self.get_objects_file_path()
-        self.download_objects()
+        
 
