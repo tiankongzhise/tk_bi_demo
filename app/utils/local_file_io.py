@@ -35,5 +35,4 @@ def save_to_txt(data:list, file_path:Path):
     with open(file_path, 'w', encoding='utf-8') as f:
         for line in data:
             f.write(line + '\n')
-    print(f'数据已保存到{file_path}')
     return file_path

@@ -3,7 +3,9 @@ from ..utils import (
 )
 from ..core import BaiduOauthCore,FetchAdsDataBaiduCore
 from ..config import get_config_settings
-from ..logger import create_logger
+from ..logger import create_logger,logger_wrapper
+from ..models.base import ReturnModel
+from .baidu_structure_zipper_service import BaiduStructureZipperService
 
 logger = create_logger(__name__)
 
@@ -39,11 +41,32 @@ class BaiduAdsDataCaptureService(AdsDataCaptureFactory):
 
         
     def get_ads_account_structure(self):
-        pass
+        """获取广告账户结构数据（全量）"""
+        temp_dir = self.config_settings.temp_dir
+        structure_service = BaiduStructureZipperService(
+            access_token=self.access_token,
+            user_name=self.controller_name,
+            temp_dir=temp_dir
+        )
+        result = structure_service.full_update_structure_data()
+        logger.info_service(f"获取百度广告账户{self.controller_name}的结构数据结束，结果: {result.message}")
+        return result
+    
     def update_ads_data(self):
-        pass
-    def update_ads_account_structure(self):
-        pass
+        """更新广告数据（报告数据）"""
+        return self.get_ads_report_data()
+    
+    def update_ads_account_structure(self, start_time: str = None):
+        """增量更新广告账户结构数据"""
+        temp_dir = self.config_settings.temp_dir
+        structure_service = BaiduStructureZipperService(
+            access_token=self.access_token,
+            user_name=self.controller_name,
+            temp_dir=temp_dir
+        )
+        result = structure_service.incremental_update_structure_data(start_time)
+        logger.info_service(f"增量更新百度广告账户{self.controller_name}的结构数据结束，结果: {result.message}")
+        return result
     def notify_result(self):
         pass
     def run(self):
