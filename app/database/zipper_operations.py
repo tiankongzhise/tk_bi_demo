@@ -142,27 +142,24 @@ class BaiduCampaignZipperOps(ZipperTableOperations):
     
     @logger_wrapper(level="INFO_DATABASE")
     def batch_upsert_campaigns(self, campaigns_data: List[Dict[str, Any]]):
-        """批量更新推广计划数据"""
+        """批量更新推广计划结构数据"""
         with db_client.session_scope as session:
             for campaign_data in campaigns_data:
+                # 只保留结构相关字段
+                structure_data = {
+                    'user_id': campaign_data.get('user_id'),
+                    'campaign_id': campaign_data.get('campaign_id'),
+                    'campaign_name': campaign_data.get('campaign_name')
+                }
+                
                 business_keys = {
-                    'user_name': campaign_data['user_name'],
-                    'campaign_id': campaign_data['campaign_id']
+                    'user_id': structure_data['user_id'],
+                    'campaign_id': structure_data['campaign_id']
                 }
                 
-                # 提取业务字段
-                data = {
-                    'campaign_name': campaign_data.get('campaign_name'),
-                    'status': campaign_data.get('status'),
-                    'budget': campaign_data.get('budget'),
-                    'schedule': campaign_data.get('schedule'),
-                    'target_setting': campaign_data.get('target_setting'),
-                    'raw_data': campaign_data
-                }
-                
-                self.upsert_record(session, business_keys, data)
+                self.upsert_record(session, business_keys, structure_data)
             
-            session.commit()
+
             logger.info_database(f"批量更新推广计划完成，共处理{len(campaigns_data)}条记录")
 
 
@@ -174,27 +171,26 @@ class BaiduAdgroupZipperOps(ZipperTableOperations):
     
     @logger_wrapper(level="INFO_DATABASE")
     def batch_upsert_adgroups(self, adgroups_data: List[Dict[str, Any]]):
-        """批量更新推广单元数据"""
+        """批量更新推广单元结构数据"""
         with db_client.session_scope as session:
             for adgroup_data in adgroups_data:
+                # 只保留结构相关字段
+                structure_data = {
+                    'user_id': adgroup_data.get('user_id'),
+                    'campaign_id': adgroup_data.get('campaign_id'),
+                    'adgroup_id': adgroup_data.get('adgroup_id'),
+                    'adgroup_name': adgroup_data.get('adgroup_name')
+                }
+                
                 business_keys = {
-                    'user_name': adgroup_data['user_name'],
-                    'campaign_id': adgroup_data['campaign_id'],
-                    'adgroup_id': adgroup_data['adgroup_id']
+                    'user_id': structure_data['user_id'],
+                    'campaign_id': structure_data['campaign_id'],
+                    'adgroup_id': structure_data['adgroup_id']
                 }
                 
-                data = {
-                    'adgroup_name': adgroup_data.get('adgroup_name'),
-                    'status': adgroup_data.get('status'),
-                    'max_price': adgroup_data.get('max_price'),
-                    'negative_words': adgroup_data.get('negative_words'),
-                    'exact_negative_words': adgroup_data.get('exact_negative_words'),
-                    'raw_data': adgroup_data
-                }
-                
-                self.upsert_record(session, business_keys, data)
+                self.upsert_record(session, business_keys, structure_data)
             
-            session.commit()
+
             logger.info_database(f"批量更新推广单元完成，共处理{len(adgroups_data)}条记录")
 
 
@@ -206,29 +202,29 @@ class BaiduKeywordZipperOps(ZipperTableOperations):
     
     @logger_wrapper(level="INFO_DATABASE")
     def batch_upsert_keywords(self, keywords_data: List[Dict[str, Any]], is_auto_expansion: bool = False):
-        """批量更新关键词数据"""
+        """批量更新关键词结构数据"""
         with db_client.session_scope as session:
             for keyword_data in keywords_data:
-                business_keys = {
-                    'user_name': keyword_data['user_name'],
-                    'campaign_id': keyword_data['campaign_id'],
-                    'adgroup_id': keyword_data['adgroup_id'],
-                    'keyword_id': keyword_data['keyword_id']
-                }
-                
-                data = {
+                # 只保留结构相关字段
+                structure_data = {
+                    'user_id': keyword_data.get('user_id'),
+                    'campaign_id': keyword_data.get('campaign_id'),
+                    'adgroup_id': keyword_data.get('adgroup_id'),
+                    'keyword_id': keyword_data.get('keyword_id'),
                     'keyword_text': keyword_data.get('keyword_text'),
-                    'status': keyword_data.get('status'),
-                    'match_type': keyword_data.get('match_type'),
-                    'price': keyword_data.get('price'),
-                    'destination_url': keyword_data.get('destination_url'),
-                    'is_auto_expansion': is_auto_expansion,
-                    'raw_data': keyword_data
+                    'is_auto_expansion': is_auto_expansion
                 }
                 
-                self.upsert_record(session, business_keys, data)
+                business_keys = {
+                    'user_id': structure_data['user_id'],
+                    'campaign_id': structure_data['campaign_id'],
+                    'adgroup_id': structure_data['adgroup_id'],
+                    'keyword_id': structure_data['keyword_id']
+                }
+                
+                self.upsert_record(session, business_keys, structure_data)
             
-            session.commit()
+
             logger.info_database(f"批量更新关键词完成，共处理{len(keywords_data)}条记录，autoExpansion: {is_auto_expansion}")
 
 
@@ -240,29 +236,29 @@ class BaiduCreativeZipperOps(ZipperTableOperations):
     
     @logger_wrapper(level="INFO_DATABASE")
     def batch_upsert_creatives(self, creatives_data: List[Dict[str, Any]]):
-        """批量更新创意数据"""
+        """批量更新创意结构数据"""
         with db_client.session_scope as session:
             for creative_data in creatives_data:
-                business_keys = {
-                    'user_name': creative_data['user_name'],
-                    'campaign_id': creative_data['campaign_id'],
-                    'adgroup_id': creative_data['adgroup_id'],
-                    'creative_id': creative_data['creative_id']
-                }
-                
-                data = {
+                # 只保留结构相关字段
+                structure_data = {
+                    'user_id': creative_data.get('user_id'),
+                    'campaign_id': creative_data.get('campaign_id'),
+                    'adgroup_id': creative_data.get('adgroup_id'),
+                    'creative_id': creative_data.get('creative_id'),
                     'title': creative_data.get('title'),
                     'description1': creative_data.get('description1'),
-                    'description2': creative_data.get('description2'),
-                    'destination_url': creative_data.get('destination_url'),
-                    'display_url': creative_data.get('display_url'),
-                    'status': creative_data.get('status'),
-                    'raw_data': creative_data
+                    'description2': creative_data.get('description2')
                 }
                 
-                self.upsert_record(session, business_keys, data)
+                business_keys = {
+                    'user_id': structure_data['user_id'],
+                    'campaign_id': structure_data['campaign_id'],
+                    'adgroup_id': structure_data['adgroup_id'],
+                    'creative_id': structure_data['creative_id']
+                }
+                
+                self.upsert_record(session, business_keys, structure_data)
             
-            session.commit()
             logger.info_database(f"批量更新创意完成，共处理{len(creatives_data)}条记录")
 
 

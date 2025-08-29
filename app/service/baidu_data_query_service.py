@@ -14,102 +14,155 @@ logger = create_logger(__name__)
 
 
 class BaiduDataQueryService:
-    """百度广告数据查询服务"""
+    """百度广告账户结构查询服务"""
     
-    def __init__(self, user_name: str):
-        self.user_name = user_name
-    
-    @logger_wrapper(level="INFO_SERVICE")
-    def get_current_campaigns(self, campaign_ids: List[int] = None) -> List[Dict[str, Any]]:
-        """获取当前有效的推广计划"""
-        filters = {'user_name': self.user_name}
-        if campaign_ids:
-            # 需要在操作类中添加支持列表过滤的方法
-            pass
-        
-        with db_client.session_scope as session:
-            records = campaign_zipper_ops.get_current_records(session, **filters)
-            return [self._record_to_dict(record) for record in records]
+    def __init__(self, user_id: str):
+        self.user_id = user_id
     
     @logger_wrapper(level="INFO_SERVICE")
-    def get_current_adgroups(self, campaign_id: int = None, adgroup_ids: List[int] = None) -> List[Dict[str, Any]]:
-        """获取当前有效的推广单元"""
-        filters = {'user_name': self.user_name}
-        if campaign_id:
-            filters['campaign_id'] = campaign_id
-        
-        with db_client.session_scope as session:
+    def get_current_campaigns(self) -> List[Dict[str, Any]]:
+        """获取当前有效的推广计划结构"""
+        with db_client.session_scope() as session:
+            records = campaign_zipper_ops.get_current_records(session, user_id=self.user_id)
+            return [{
+                'campaign_id': record.campaign_id,
+                'campaign_name': record.campaign_name,
+                'effective_start_date': record.effective_start_date,
+                'data_version': record.data_version
+            } for record in records]
+    
+    @logger_wrapper(level="INFO_SERVICE")
+    def get_current_adgroups(self, campaign_id: int = None) -> List[Dict[str, Any]]:
+        """获取当前有效的推广单元结构"""
+        with db_client.session_scope() as session:
+            filters = {'user_id': self.user_id}
+            if campaign_id:
+                filters['campaign_id'] = campaign_id
+                
             records = adgroup_zipper_ops.get_current_records(session, **filters)
-            return [self._record_to_dict(record) for record in records]
+            return [{
+                'campaign_id': record.campaign_id,
+                'adgroup_id': record.adgroup_id,
+                'adgroup_name': record.adgroup_name,
+                'effective_start_date': record.effective_start_date,
+                'data_version': record.data_version
+            } for record in records]
     
     @logger_wrapper(level="INFO_SERVICE")
-    def get_current_keywords(self, campaign_id: int = None, adgroup_id: int = None, 
-                           include_auto_expansion: bool = True) -> List[Dict[str, Any]]:
-        """获取当前有效的关键词"""
-        filters = {'user_name': self.user_name}
-        if campaign_id:
-            filters['campaign_id'] = campaign_id
-        if adgroup_id:
-            filters['adgroup_id'] = adgroup_id
-        if not include_auto_expansion:
-            filters['is_auto_expansion'] = False
-        
-        with db_client.session_scope as session:
+    def get_current_keywords(self, campaign_id: int = None, adgroup_id: int = None, include_auto_expansion: bool = True) -> List[Dict[str, Any]]:
+        """获取当前有效的关键词结构"""
+        with db_client.session_scope() as session:
+            filters = {'user_id': self.user_id}
+            if campaign_id:
+                filters['campaign_id'] = campaign_id
+            if adgroup_id:
+                filters['adgroup_id'] = adgroup_id
+            if not include_auto_expansion:
+                filters['is_auto_expansion'] = False
+                
             records = keyword_zipper_ops.get_current_records(session, **filters)
-            return [self._record_to_dict(record) for record in records]
+            return [{
+                'campaign_id': record.campaign_id,
+                'adgroup_id': record.adgroup_id,
+                'keyword_id': record.keyword_id,
+                'keyword_text': record.keyword_text,
+                'is_auto_expansion': record.is_auto_expansion,
+                'effective_start_date': record.effective_start_date,
+                'data_version': record.data_version
+            } for record in records]
     
     @logger_wrapper(level="INFO_SERVICE")
     def get_current_creatives(self, campaign_id: int = None, adgroup_id: int = None) -> List[Dict[str, Any]]:
-        """获取当前有效的创意"""
-        filters = {'user_name': self.user_name}
-        if campaign_id:
-            filters['campaign_id'] = campaign_id
-        if adgroup_id:
-            filters['adgroup_id'] = adgroup_id
-        
-        with db_client.session_scope as session:
+        """获取当前有效的创意结构"""
+        with db_client.session_scope() as session:
+            filters = {'user_id': self.user_id}
+            if campaign_id:
+                filters['campaign_id'] = campaign_id
+            if adgroup_id:
+                filters['adgroup_id'] = adgroup_id
+                
             records = creative_zipper_ops.get_current_records(session, **filters)
-            return [self._record_to_dict(record) for record in records]
+            return [{
+                'campaign_id': record.campaign_id,
+                'adgroup_id': record.adgroup_id,
+                'creative_id': record.creative_id,
+                'title': record.title,
+                'description1': record.description1,
+                'description2': record.description2,
+                'effective_start_date': record.effective_start_date,
+                'data_version': record.data_version
+            } for record in records]
     
     @logger_wrapper(level="INFO_SERVICE")
     def get_historical_campaigns(self, campaign_id: int, start_date: datetime = None, 
                                end_date: datetime = None) -> List[Dict[str, Any]]:
         """获取推广计划的历史变更记录"""
-        filters = {'user_name': self.user_name, 'campaign_id': campaign_id}
+        filters = {'user_id': self.user_id, 'campaign_id': campaign_id}
         
-        with db_client.session_scope as session:
+        with db_client.session_scope() as session:
             records = campaign_zipper_ops.get_historical_records(session, start_date, end_date, **filters)
-            return [self._record_to_dict(record) for record in records]
+            return [{                'campaign_id': record.campaign_id,
+                'campaign_name': record.campaign_name,
+                'effective_start_date': record.effective_start_date,
+                'effective_end_date': record.effective_end_date,
+                'data_version': record.data_version
+            } for record in records]
     
     @logger_wrapper(level="INFO_SERVICE")
     def get_historical_adgroups(self, adgroup_id: int, start_date: datetime = None, 
                               end_date: datetime = None) -> List[Dict[str, Any]]:
         """获取推广单元的历史变更记录"""
-        filters = {'user_name': self.user_name, 'adgroup_id': adgroup_id}
+        filters = {'user_id': self.user_id, 'adgroup_id': adgroup_id}
         
-        with db_client.session_scope as session:
+        with db_client.session_scope() as session:
             records = adgroup_zipper_ops.get_historical_records(session, start_date, end_date, **filters)
-            return [self._record_to_dict(record) for record in records]
+            return [{
+                'campaign_id': record.campaign_id,
+                'adgroup_id': record.adgroup_id,
+                'adgroup_name': record.adgroup_name,
+                'effective_start_date': record.effective_start_date,
+                'effective_end_date': record.effective_end_date,
+                'data_version': record.data_version
+            } for record in records]
     
     @logger_wrapper(level="INFO_SERVICE")
     def get_historical_keywords(self, keyword_id: int, start_date: datetime = None, 
                               end_date: datetime = None) -> List[Dict[str, Any]]:
         """获取关键词的历史变更记录"""
-        filters = {'user_name': self.user_name, 'keyword_id': keyword_id}
+        filters = {'user_id': self.user_id, 'keyword_id': keyword_id}
         
-        with db_client.session_scope as session:
+        with db_client.session_scope() as session:
             records = keyword_zipper_ops.get_historical_records(session, start_date, end_date, **filters)
-            return [self._record_to_dict(record) for record in records]
+            return [{
+                'campaign_id': record.campaign_id,
+                'adgroup_id': record.adgroup_id,
+                'keyword_id': record.keyword_id,
+                'keyword_text': record.keyword_text,
+                'is_auto_expansion': record.is_auto_expansion,
+                'effective_start_date': record.effective_start_date,
+                'effective_end_date': record.effective_end_date,
+                'data_version': record.data_version
+            } for record in records]
     
     @logger_wrapper(level="INFO_SERVICE")
     def get_historical_creatives(self, creative_id: int, start_date: datetime = None, 
                                end_date: datetime = None) -> List[Dict[str, Any]]:
         """获取创意的历史变更记录"""
-        filters = {'user_name': self.user_name, 'creative_id': creative_id}
+        filters = {'user_id': self.user_id, 'creative_id': creative_id}
         
-        with db_client.session_scope as session:
+        with db_client.session_scope() as session:
             records = creative_zipper_ops.get_historical_records(session, start_date, end_date, **filters)
-            return [self._record_to_dict(record) for record in records]
+            return [{
+                'campaign_id': record.campaign_id,
+                'adgroup_id': record.adgroup_id,
+                'creative_id': record.creative_id,
+                'title': record.title,
+                'description1': record.description1,
+                'description2': record.description2,
+                'effective_start_date': record.effective_start_date,
+                'effective_end_date': record.effective_end_date,
+                'data_version': record.data_version
+            } for record in records]
     
     @logger_wrapper(level="INFO_SERVICE")
     def get_data_changes_summary(self, start_date: datetime, end_date: datetime = None) -> Dict[str, Any]:
@@ -130,7 +183,7 @@ class BaiduDataQueryService:
             }
         }
         
-        with db_client.session_scope as session:
+        with db_client.session_scope() as session:
             # 统计各类型数据的变更数量
             for data_type, ops in [
                 ('campaigns', campaign_zipper_ops),
@@ -140,7 +193,7 @@ class BaiduDataQueryService:
             ]:
                 count = session.query(func.count(ops.model_class.id)).filter(
                     and_(
-                        ops.model_class.user_name == self.user_name,
+                        ops.model_class.user_id == self.user_id,
                         ops.model_class.effective_start_date >= start_date,
                         ops.model_class.effective_start_date <= end_date,
                         ops.model_class.change_type.in_(['INSERT', 'UPDATE'])
@@ -159,7 +212,7 @@ class BaiduDataQueryService:
         
         snapshot = {
             'snapshot_date': snapshot_date.isoformat(),
-            'user_name': self.user_name,
+            'user_id': self.user_id,
             'structure': {
                 'campaigns': [],
                 'adgroups': [],
@@ -185,7 +238,7 @@ class BaiduDataQueryService:
             ]:
                 records = session.query(ops.model_class).filter(
                     and_(
-                        ops.model_class.user_name == self.user_name,
+                        ops.model_class.user_id == self.user_id,
                         ops.model_class.effective_start_date <= snapshot_date,
                         or_(
                             ops.model_class.effective_end_date.is_(None),
@@ -224,7 +277,7 @@ class BaiduDataQueryService:
         with db_client.session_scope as session:
             query = session.query(keyword_zipper_ops.model_class).filter(
                 and_(
-                    keyword_zipper_ops.model_class.user_name == self.user_name,
+                    keyword_zipper_ops.model_class.user_id == self.user_id,
                     keyword_zipper_ops.model_class.is_current == True
                 )
             )
@@ -259,7 +312,7 @@ class BaiduDataQueryService:
             # 查找在指定时间段内结束的记录（被删除或更新的记录）
             records = session.query(ops.model_class).filter(
                 and_(
-                    ops.model_class.user_name == self.user_name,
+                    ops.model_class.user_id == self.user_id,
                     ops.model_class.effective_end_date.isnot(None),
                     ops.model_class.effective_end_date >= start_date,
                     ops.model_class.effective_end_date <= end_date

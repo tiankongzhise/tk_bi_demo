@@ -40,32 +40,32 @@ class BaiduAdsDataCaptureService(AdsDataCaptureFactory):
 
 
         
-    def get_ads_account_structure(self):
+    def get_ads_account_structure(self, user_id: str, account_id: str):
         """获取广告账户结构数据（全量）"""
         temp_dir = self.config_settings.temp_dir
         structure_service = BaiduStructureZipperService(
             access_token=self.access_token,
-            user_name=self.controller_name,
+            user_id=user_id,
             temp_dir=temp_dir
         )
-        result = structure_service.full_update_structure_data()
-        logger.info_service(f"获取百度广告账户{self.controller_name}的结构数据结束，结果: {result.message}")
+        result = structure_service.full_update_structure_data(user_id, account_id)
+        logger.info_service(f"获取百度广告账户{user_id}的结构数据结束，结果: {result.message}")
         return result
     
     def update_ads_data(self):
         """更新广告数据（报告数据）"""
         return self.get_ads_report_data()
     
-    def update_ads_account_structure(self, start_time: str = None):
+    def update_ads_account_structure(self, user_id: str, account_id: str):
         """增量更新广告账户结构数据"""
         temp_dir = self.config_settings.temp_dir
         structure_service = BaiduStructureZipperService(
             access_token=self.access_token,
-            user_name=self.controller_name,
+            user_id=user_id,
             temp_dir=temp_dir
         )
-        result = structure_service.incremental_update_structure_data(start_time)
-        logger.info_service(f"增量更新百度广告账户{self.controller_name}的结构数据结束，结果: {result.message}")
+        result = structure_service.incremental_update_structure_data(user_id, account_id)
+        logger.info_service(f"增量更新百度广告账户{user_id}的结构数据结束，结果: {result.message}")
         return result
     def notify_result(self):
         pass

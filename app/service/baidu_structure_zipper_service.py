@@ -24,16 +24,16 @@ class BaiduStructureZipperService:
     """百度广告结构数据拉链表服务"""
     
     @logger_wrapper(level="INFO_SERVICE")
-    def __init__(self, access_token: str, user_name: str, temp_dir: str):
+    def __init__(self, access_token: str, user_id: str, temp_dir: str):
         self.access_token = access_token
-        self.user_name = user_name
+        self.user_id = user_id
         self.temp_dir = Path(temp_dir)
         self.config_settings = get_config_settings()
         
         # 初始化结构数据获取核心
         self.fetch_core = FetchStructureBaiduCore(
             access_token=access_token,
-            user_name=user_name,
+            user_name=user_id,
             temp_dir=str(temp_dir)
         )
     
@@ -53,8 +53,8 @@ class BaiduStructureZipperService:
                         snake_key = camel_to_snake(key)
                         converted_row[snake_key] = value
                     
-                    # 添加用户名
-                    converted_row['user_name'] = self.user_name
+                    # 添加用户ID
+                    converted_row['user_id'] = self.user_id
                     
                     # 根据数据类型进行特殊处理
                     if data_type == 'keyword' or data_type == 'autoExpansion':
@@ -112,7 +112,7 @@ class BaiduStructureZipperService:
     def full_update_structure_data(self) -> ReturnModel:
         """全量更新结构数据"""
         try:
-            logger.info_service(f"开始全量更新百度账户{self.user_name}的结构数据")
+            logger.info_service(f"开始全量更新百度账户{self.user_id}的结构数据")
             
             # 1. 获取全量数据
             result = self.fetch_core.get_all_objects()
@@ -148,10 +148,10 @@ class BaiduStructureZipperService:
             # 6. 更新拉链表数据
             self._update_zipper_tables(structure_data, is_full_update=True)
             
-            logger.info_service(f"百度账户{self.user_name}全量更新完成")
+            logger.info_service(f"百度账户{self.user_id}全量更新完成")
             return ReturnModel(
                 status='success',
-                message=f'百度账户{self.user_name}全量更新成功',
+                message=f'百度账户{self.user_id}全量更新成功',
                 data={
                     'campaign_count': len(structure_data['campaign']),
                     'adgroup_count': len(structure_data['adgroup']),
@@ -173,7 +173,7 @@ class BaiduStructureZipperService:
     def incremental_update_structure_data(self, start_time: Optional[str] = None) -> ReturnModel:
         """增量更新结构数据"""
         try:
-            logger.info_service(f"开始增量更新百度账户{self.user_name}的结构数据")
+            logger.info_service(f"开始增量更新百度账户{self.user_id}的结构数据")
             
             # 设置开始时间
             if start_time:
@@ -224,10 +224,10 @@ class BaiduStructureZipperService:
             # 7. 更新拉链表数据
             self._update_zipper_tables(structure_data, is_full_update=False)
             
-            logger.info_service(f"百度账户{self.user_name}增量更新完成")
+            logger.info_service(f"百度账户{self.user_id}增量更新完成")
             return ReturnModel(
                 status='success',
-                message=f'百度账户{self.user_name}增量更新成功',
+                message=f'百度账户{self.user_id}增量更新成功',
                 data={
                     'changed_count': changed_count,
                     'campaign_count': len(structure_data['campaign']),
